@@ -1,3 +1,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+// hover-scroll : スクロールバーをhover時のみ表示
+/* 通常時 */
+.hover-scroll {
+    //scrollbar-width: thin; /* Firefox用 */
+    -ms-overflow-style: none; /* IE用 */
+    overflow-y: scroll;
+}
+.hover-scroll::-webkit-scrollbar {
+    width: 4px;
+    background-color: transparent;
+}
+.hover-scroll::-webkit-scrollbar-thumb { /* つまむところ */
+    background-color: transparent;
+}
+/* マウスホバー時 */
+.hover-scroll:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+}
