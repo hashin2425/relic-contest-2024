@@ -3,6 +3,7 @@
 
 import React, { use, useState, useEffect } from "react";
 import TextArea from "./components/textArea";
+import CircularProgressBar from "@/app/components/circleProgressBar";
 
 type PageProps = {
   params: Promise<{ content_id: string }>;
@@ -26,20 +27,20 @@ export default function ContentPage({ params }: PageProps) {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex flex-1">
-        <div className="flex-1 bg-blue-100 p-4">
+        <div className="flex-1 p-4">
           <OdaiImage id={id} imageUrl={odaiImageUrl} />
         </div>
-        <div className="flex-1 bg-green-100 p-4">
+        <div className="flex-1 p-4">
           <GenImage id={id} />
         </div>
       </div>
 
       <div className="flex flex-1">
-        <div className="flex-[7] bg-yellow-100 p-4">
+        <div className="flex-[7] p-4">
           <TextArea id={id} />
         </div>
-        <div className="flex-[3] bg-red-100 p-4">
-          <h2 className="text-2xl font-bold">スコア表示とか</h2>
+        <div className="flex-[3] p-4">
+          <Score id={id} />
         </div>
       </div>
     </div>
@@ -64,6 +65,14 @@ function GenImage({ id }: { id: string }) {
       <h2 className="text-2xl font-bold flex justify-center items-center h-full">
         生成画像
       </h2>
+    </div>
+  );
+}
+
+function Score({ id }: { id: string }) {
+  return (
+    <div className="bg-white p-4 w-full rounded-lg shadow-lg">
+      <CircularProgressBar maxValue={100} currentValue={90} size={350}/>
     </div>
   );
 }
