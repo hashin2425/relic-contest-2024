@@ -1,7 +1,8 @@
 "use client";
 // app/challenge/[content_id]/page.tsx
 
-import { use } from 'react';
+import React, { use, useState, useEffect } from "react";
+import TextArea from "./components/textArea";
 
 type PageProps = {
   params: Promise<{ content_id: string }>;
@@ -10,11 +11,23 @@ type PageProps = {
 export default function ContentPage({ params }: PageProps) {
   const { content_id: id } = use(params);
 
+  const [odaiImageUrl, setImageUrl] = useState<string>("");
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/get-problem")
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        setImageUrl(url);
+      })
+      .catch((error) => console.error("Error:", error));
+  }, []);
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex flex-1">
         <div className="flex-1 bg-blue-100 p-4">
-          <OdaiImage id={id} />
+          <OdaiImage id={id} imageUrl={odaiImageUrl} />
         </div>
         <div className="flex-1 bg-green-100 p-4">
           <GenImage id={id} />
@@ -33,11 +46,14 @@ export default function ContentPage({ params }: PageProps) {
   );
 }
 
-function OdaiImage({ id }: { id: string }) {
+function OdaiImage({ id, imageUrl }: { id: string; imageUrl: string }) {
   return (
-    <div className="bg-white p-4 h-full w-full rounded-lg shadow-lg">
+    <div
+      className="bg-white p-4 h-full w-full rounded-lg shadow-lg 
+      bg-cover bg-center"
+      style={{ backgroundImage: `url(${imageUrl})` }} //背景にお題画像
+    >
       <p>contentId : {id}</p>
-      <h2 className="text-2xl font-bold flex justify-center items-center h-full">お題画像</h2>
     </div>
   );
 }
@@ -45,47 +61,9 @@ function OdaiImage({ id }: { id: string }) {
 function GenImage({ id }: { id: string }) {
   return (
     <div className="bg-white p-4 h-full w-full rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold flex justify-center items-center h-full">生成画像</h2>
-    </div>
-  );
-}
-
-import { useState } from 'react';
-
-function TextArea({ id }: { id: string }) {
-  const [text, setText] = useState('');
-  const [items, setItems] = useState<string[]>([]);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (text.trim()) {
-        setItems([...items, text]);
-        setText('');
-      }
-    }
-  };
-
-  return (
-    <div className="bg-white p-4 h-96 w-full rounded-lg shadow-lg flex flex-col">
-      <div className="flex-[9] bg-gray-100 p-2 overflow-y-auto">
-        <ul>
-          {items.map((item, index) => (
-            <li key={index} className="p-1 border-b border-gray-300">
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="flex-[1] bg-gray-200 p-2">
-        <textarea
-          className="w-full h-full p-2 border border-gray-300 rounded"
-          placeholder="テキストを入力..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-      </div>
+      <h2 className="text-2xl font-bold flex justify-center items-center h-full">
+        生成画像
+      </h2>
     </div>
   );
 }
