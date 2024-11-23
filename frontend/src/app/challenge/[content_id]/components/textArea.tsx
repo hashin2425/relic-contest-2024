@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 
+
 type TextLogProps = {
   inputText: string;
   adviceText?: string;
+  loadCompleted: boolean;
 };
 export default function TextArea({ id }: { id: string }) {
   const [inputText, setInputText] = useState<string>("");
@@ -20,6 +22,7 @@ export default function TextArea({ id }: { id: string }) {
     const logId = textLog.length;
     const newTextLogProp: TextLogProps = {
       inputText: input,
+      loadCompleted: false,
     };
     setTextLog([...textLog, newTextLogProp]);
 
@@ -42,6 +45,7 @@ export default function TextArea({ id }: { id: string }) {
       setTextLog((prev) => {
         const newLog = [...prev];
         newLog[logId].adviceText = data.advice;
+        newLog[logId].loadCompleted = true;
         return newLog;
       });
 
@@ -61,7 +65,13 @@ export default function TextArea({ id }: { id: string }) {
             className="p-1 border-b border-gray-300 flex justify-between"
           >
             <div>{textLogProp.inputText}</div>
-            <div>{textLogProp.adviceText || "アドバイスを取得中..."}</div>
+            {textLogProp.loadCompleted ? ( //読込中か?
+              <div>{textLogProp.adviceText}</div>
+            ) : (
+              <div className="flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
           </li>
         ))}
       </div>
@@ -82,7 +92,9 @@ export default function TextArea({ id }: { id: string }) {
           <button
             type="submit"
             className="p-2 bg-blue-500 text-white rounded-r-xl"
-          >submit</button>
+          >
+            submit
+          </button>
         </form>
       </div>
     </div>
