@@ -67,6 +67,6 @@ if __name__ == "__main__":
         "main:app",
         host="localhost",
         port=5000,
-        reload=True if os.getenv("DEBUG", "False") == "True" else False,
-        access_log=True if os.getenv("DEBUG", "False") == "True" else False,
+        reload=os.getenv("DEBUG", "False") == "True",
+        access_log=os.getenv("DEBUG", "False") == "True",
     )

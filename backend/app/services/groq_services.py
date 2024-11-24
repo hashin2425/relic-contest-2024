@@ -13,7 +13,7 @@ class GroqClient:
         self.client = Groq(api_key=api_key)
 
     def chat(self, messages: List[dict], max_tokens: int = 8192, temperature: float = 0.2) -> str:
-        # GroqのAPIを呼び出してチャットの応答を取得
+        """GroqのAPIを呼び出してチャットの応答を取得"""
         completion = self.client.chat.completions.create(
             model="llama-3.2-90b-vision-preview",  # 使用するモデル
             messages=messages,  # メッセージのリスト
