@@ -31,6 +31,8 @@
    python main.py
    ```
 
+   仮の API を使う場合は`main.py`のかわりに`main-temp.py`を実行してください。
+
    <http://localhost:8000/docs>を Web ブラウザから開くとエンドポイントを確認できる。
 
 ### Next.js フロントエンド
