@@ -1,28 +1,31 @@
 "use client";
-// app/challenge/[content_id]/page.tsx
 
 import React, { use, useState, useEffect } from "react";
 import TextArea from "./components/textArea";
 import CircularProgressBar from "@/app/components/circleProgressBar";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+// app/challenge/[content_id]/page.tsx
+//urlの[content_id]を取得
 type PageProps = {
   params: Promise<{ content_id: string }>;
 };
 
 export default function ContentPage({ params }: PageProps) {
   const { content_id: id } = use(params);
-
   const [odaiImageUrl, setImageUrl] = useState<string>("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/get-problem")
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = URL.createObjectURL(blob);
-        setImageUrl(url);
+    // 問題のデータを取得
+    fetch(apiUrl+"/api/get-problems/"+id)
+      .then((response) => response.json())
+      .then((data) => {
+        const imgUrl = data.problem.imgUrl;
+        setImageUrl(apiUrl+imgUrl);
       })
       .catch((error) => console.error("Error:", error));
-  }, []);
+  }, [id]);
 
   return (
     <div className="flex flex-col h-screen">

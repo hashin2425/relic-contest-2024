@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uvicorn
+import asyncio
 
 
 class Message(BaseModel):
@@ -62,6 +63,7 @@ async def get_problems():
 
 @app.post("/api/chat")
 async def return_message_from_chat(request: MessagesRequest):
+    await asyncio.sleep(3) # (テスト用)レスポンスを遅らせる
     return {"response": f"チャットのレスポンス結果が返されます。{get_now_as_string()}"}
 
 

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 type TextLogProps = {
   inputText: string;
@@ -14,11 +15,17 @@ export default function TextArea({ id }: { id: string }) {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); //formのデフォルト動作をキャンセル
 
+    // 空送信しない
+    if (inputText === "") {
+      return;
+    }
+
     //テキストボックスを空に
     const input: string = inputText;
     setInputText("");
 
     // ひとまずinputの内容だけ入れてログに追加
+    // この時点ではloadCompletedはfalse
     const logId = textLog.length;
     const newTextLogProp: TextLogProps = {
       inputText: input,
@@ -26,25 +33,27 @@ export default function TextArea({ id }: { id: string }) {
     };
     setTextLog([...textLog, newTextLogProp]);
 
+    // APIに合わせて整形
+    const messages = textLog.map(log => ({role: "user",  content: log.inputText}));
+    messages.push({role: "user",  content: input});
+
     try {
       // テキストをPOST
-      const response = await fetch("http://localhost:5000/api/post-text-test", {
+      const response = await fetch(apiUrl+"/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          content_id: id,
-          text: input,
-        }),
+        body: JSON.stringify({messages: messages}),
       });
 
       const data = await response.json();
+      console.log("API Response:", data.response);
 
-      // レスポンスが返ってきたときにadviceTextを入力
+      // レスポンスが返ってきたときにadviceTextをlogに入力
       setTextLog((prev) => {
         const newLog = [...prev];
-        newLog[logId].adviceText = data.advice;
+        newLog[logId].adviceText = data.response;
         newLog[logId].loadCompleted = true;
         return newLog;
       });

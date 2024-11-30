@@ -6,6 +6,7 @@ export default function Header() {
       <Link href="/">
         <h1 className="text-2xl font-bold text-white">英語学習アプリ</h1>
       </Link>
+      
     </div>
   );
 }
