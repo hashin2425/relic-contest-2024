@@ -8,20 +8,21 @@ from app.models.pydantic_models import MessagesRequest
 from app.services.groq_services import GroqClient
 from app.utils.image_utils import encode_image
 
-groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
 api_router = APIRouter()
 
 
-@api_router.post("/api/chat")
+@api_router.post("/chat")
 async def return_message_from_chat(request: MessagesRequest):
     """チャットリクエストをGroqクライアントに送信し、応答を返す"""
+    groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
     response = groq_client.chat(messages=request.messages)
     return {"response": response}
 
 
-@api_router.post("/api/analyze-image")
+@api_router.post("/analyze-image")
 async def analyze_image(file: UploadFile):
     """画像がJPEGまたはPNG形式であることを確認"""
+    groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=400, detail="Only JPEG or PNG images are supported.")
 
@@ -46,9 +47,10 @@ async def analyze_image(file: UploadFile):
     return {"description": description}
 
 
-@api_router.post("/api/analyze-base64image")
+@api_router.post("/analyze-base64image")
 async def analyze_base64image(base64_image: str):
     """Base64エンコードされた画像をGroqに渡して説明を取得"""
+    groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
     messages = [
         {
             "role": "user",
@@ -67,7 +69,7 @@ async def analyze_base64image(base64_image: str):
     return {"description": description}
 
 
-@api_router.post("/api/create-image")
+@api_router.post("/create-image")
 async def create_image(prompt: str):
     """画像生成のためのAPIキーとURL"""
     api_key = os.getenv("SEGMIND_KEY")

@@ -1,4 +1,4 @@
-name: Pylint
+name: "[Auto] Python Linter"
 
 on: [push, pull_request]
 
