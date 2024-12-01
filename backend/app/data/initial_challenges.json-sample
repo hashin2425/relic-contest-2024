@@ -1,0 +1,14 @@
+[
+  {
+    "_id": "ch001",
+    "title": "海辺の夕暮れ",
+    "image_path": "/images/challenges/sunset_beach.jpg",
+    "image_hash": "e1fc9687b459c2c0990c9bb766"
+  },
+  {
+    "_id": "ch002",
+    "title": "和歌山城の桜",
+    "image_path": "/images/challenges/wakayama_castle_spring.jpg",
+    "image_hash": "a2dc8796c568d3d1081d0cc877"
+  }
+]

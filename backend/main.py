@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from app.api.v1.endpoints import challenges_list as challenges_list_v1, challenges_func as challenges_func_v1, users as users_v1, image as image_v1
+from app.core.mongodb_core import db
 
 dotenv.load_dotenv()
 server_start_time = datetime.now()
@@ -19,15 +20,29 @@ app = FastAPI(
     description=os.getenv("PROJECT_DESCRIPTION", "relic-contest-2024"),
     version=os.getenv("PROJECT_VERSION", "1.0.0"),
 )
+
+# CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # フロントエンドのURL
-    ],
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_db_client():
+    """アプリケーション起動時の処理"""
+    await db.connect()
+    await db.init_challenges()
+
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    """アプリケーション終了時の処理"""
+    await db.close()
+
 
 # ルーターの登録
 app.include_router(
