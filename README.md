@@ -1,5 +1,10 @@
 # relic-contest-2024
 
+[![CodeQL](https://github.com/hashin2425/relic-contest-2024/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/hashin2425/relic-contest-2024/actions/workflows/codeql.yml)
+[![Pylint](https://github.com/hashin2425/relic-contest-2024/actions/workflows/pylint.yml/badge.svg?branch=main)](https://github.com/hashin2425/relic-contest-2024/actions/workflows/pylint.yml)
+[![Python Tests](https://github.com/hashin2425/relic-contest-2024/actions/workflows/unittest.yml/badge.svg?branch=main)](https://github.com/hashin2425/relic-contest-2024/actions/workflows/unittest.yml)
+[![Dependabot](https://github.com/hashin2425/relic-contest-2024/actions/workflows/dependabot/dependabot-updates/badge.svg?branch=main)](https://github.com/hashin2425/relic-contest-2024/actions/workflows/dependabot/dependabot-updates)
+
 （説明をここに書く）
 
 ## 環境構築と起動方法
