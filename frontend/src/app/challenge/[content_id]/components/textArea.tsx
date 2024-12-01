@@ -7,7 +7,12 @@ type TextLogProps = {
   adviceText?: string;
   loadCompleted: boolean;
 };
-export default function TextArea({ id }: { id: string }) {
+
+type TextAreaProps = {
+  id: string;
+  handleCreateImage: (prompt: string) => Promise<void>;
+};
+export default function TextArea({ id, handleCreateImage }: TextAreaProps) {
   const [inputText, setInputText] = useState<string>("");
   const [textLog, setTextLog] = useState<TextLogProps[]>([]);
 
@@ -57,6 +62,9 @@ export default function TextArea({ id }: { id: string }) {
         newLog[logId].loadCompleted = true;
         return newLog;
       });
+
+      // TODO: 呼び出しタイミングを考える (数回に一回？)
+      await handleCreateImage(input);
 
     } catch (error) {
       console.error("Error:", error);
