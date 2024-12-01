@@ -52,14 +52,21 @@ app.include_router(
 )
 
 
+@app.get("/", tags=["others"])
+@app.get("/api", tags=["others"])
 @app.get("/health-check", tags=["others"])
+@app.get("/api/health-check", tags=["others"])
 async def health_check():
     """ヘルスチェック用のエンドポイント"""
-    return {
-        "message": "Server is running.",
-        "server_internal_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "server_running_time": str(datetime.now() - server_start_time),
-    }
+    response = {"message": "Server is running."}
+
+    if os.getenv("DEBUG", "False") == "True":
+        response["server_internal_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        server_running_time = datetime.now() - server_start_time
+        server_running_time_seconds = int(server_running_time.total_seconds())
+        response["server_running_time"] = f"{server_running_time_seconds // 3600}h {(server_running_time_seconds % 3600) // 60}m {server_running_time_seconds % 60}s"
+
+    return response
 
 
 if __name__ == "__main__":

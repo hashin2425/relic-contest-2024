@@ -12,4 +12,4 @@ COPY . .
 EXPOSE 5000
 
 # Start app
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
