@@ -73,3 +73,7 @@
 ```sh
 docker-compose up -d --build
 ```
+
+上記実行時にエラー（KeyError: 'ContainerConfig'）が出たときは、`docker-compose down`を実行してコンテナーを終了させる必要がある。
+
+参考記事：<https://qiita.com/vossibop/items/851ea35983136e615711>
