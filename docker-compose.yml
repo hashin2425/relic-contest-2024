@@ -29,7 +29,6 @@ services:
       - "${NGINX_EXTERNAL_PORT}:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/allowed-ips.map:/etc/nginx/allowed-ips.map
     depends_on:
       - frontend
       - backend
