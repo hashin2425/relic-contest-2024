@@ -34,8 +34,12 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_db_client():
     """アプリケーション起動時の処理"""
-    await db.connect()
-    await db.init_challenges()
+    if os.getenv("PASS_INITIALIZE_MONGO_SETUP", "True") == "False":
+        print("Initializing MongoDB setup...")
+        await db.connect()
+        await db.init_challenges()
+    else:
+        print("Skip initializing MongoDB setup.")
 
 
 @app.on_event("shutdown")
