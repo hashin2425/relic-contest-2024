@@ -7,6 +7,22 @@
 
 （説明をここに書く）
 
+## チャレンジ（問題）の追加方法
+
+1. PNG形式で画像ファイルを用意する
+2. 画像ファイルを`backend\app\data\images\`ディレクトリに配置する
+3. 次のコマンドを実行する：
+
+    ```sh
+    cd backend
+    ./venv/Scripts/activate
+    python ./tools/image_name_hashed.local.py
+    ```
+
+4. `backend\app\data\initial_challenges.json`に問題の諸情報を書き込む
+5. 通常のデプロイと同じように、GitHubリポジトリへプッシュし、VPSからコンテナーを再作成する
+"""
+
 ## 環境構築と起動方法
 
 ### Python バックエンド
