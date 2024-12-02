@@ -34,17 +34,17 @@ export default function TextArea({ id }: { id: string }) {
     setTextLog([...textLog, newTextLogProp]);
 
     // APIに合わせて整形
-    const messages = textLog.map(log => ({role: "user",  content: log.inputText}));
-    messages.push({role: "user",  content: input});
+    const messages = textLog.map((log) => ({ role: "user", content: log.inputText }));
+    messages.push({ role: "user", content: input });
 
     try {
       // テキストをPOST
-      const response = await fetch(apiUrl+"/api/chat", {
+      const response = await fetch(apiUrl + "/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({messages: messages}),
+        body: JSON.stringify({ messages: messages }),
       });
 
       const data = await response.json();
@@ -57,7 +57,6 @@ export default function TextArea({ id }: { id: string }) {
         newLog[logId].loadCompleted = true;
         return newLog;
       });
-
     } catch (error) {
       console.error("Error:", error);
     }
@@ -69,10 +68,7 @@ export default function TextArea({ id }: { id: string }) {
       <div className="flex-[9] bg-gray-100 p-2 overflow-y-auto">
         {textLog.map((textLogProp, index) => (
           /* 各入力テキストの表示 */
-          <li
-            key={index}
-            className="p-1 border-b border-gray-300 flex justify-between"
-          >
+          <li key={index} className="p-1 border-b border-gray-300 flex justify-between">
             <div>{textLogProp.inputText}</div>
             {textLogProp.loadCompleted ? ( //読込中か?
               <div>{textLogProp.adviceText}</div>
@@ -87,21 +83,9 @@ export default function TextArea({ id }: { id: string }) {
 
       {/* 下部, テキスト入力欄 */}
       <div className="flex-[1] bg-gray-200 p-2">
-        <form
-          className="flex items-center space-x-1 mx-1"
-          onSubmit={handleSubmit}
-        >
-          <input
-            type="text"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="This is a pen."
-            className="p-2 flex-1 border border-gray-300 rounded-l-xl"
-          />
-          <button
-            type="submit"
-            className="p-2 bg-blue-500 text-white rounded-r-xl"
-          >
+        <form className="flex items-center space-x-1 mx-1" onSubmit={handleSubmit}>
+          <input type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} placeholder="This is a pen." className="p-2 flex-1 border border-gray-300 rounded-l-xl" />
+          <button type="submit" className="p-2 bg-blue-500 text-white rounded-r-xl">
             submit
           </button>
         </form>
