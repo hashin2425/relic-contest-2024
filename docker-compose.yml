@@ -26,6 +26,9 @@ services:
       MONGO_INITDB_DATABASE: challenges_db
     ports:
       - "15000:5000"
+    depends_on:
+      mongodb: # `mongodb`というネームでサービスを指定できるようにする
+        condition: service_healthy # `mongodb`サービスが正常に動作している場合のみ起動する
     networks:
       - app-network
       - monitoring
@@ -98,6 +101,13 @@ services:
       - ./mongodb/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - app-network
+    restart: on-failure
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
 networks:
   app-network:
