@@ -20,5 +20,9 @@
         "test_*.py"
     ],
     "python.testing.pytestEnabled": false,
-    "python.testing.unittestEnabled": true
+    "python.testing.unittestEnabled": true,
+    "python.analysis.extraPaths": [
+        "./backend", // プロジェクトのルートからの相対パス
+        "${workspaceFolder}/backend" // ワークスペースからの絶対パス
+    ]
 }

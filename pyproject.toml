@@ -1,2 +1,5 @@
 [tool.pylint]
 max-line-length = 200
+
+[tool.pyright]
+extraPaths = ["./src"]
