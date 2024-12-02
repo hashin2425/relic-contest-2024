@@ -1,7 +1,13 @@
 {
     "cSpell.words": [
         "Groq",
+        "healthcheck",
+        "INITDB",
         "Koinobori",
+        "mongosh",
+        "odai",
+        "promtail",
+        "PYTHONUNBUFFERED",
         "sakura",
         "SEGMIND",
         "venv"

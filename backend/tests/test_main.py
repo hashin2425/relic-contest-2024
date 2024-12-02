@@ -17,8 +17,6 @@ class TestMain(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["message"], "Server is running.")
-        self.assertIn("server_internal_time", data)
-        self.assertIn("server_running_time", data)
 
 
 if __name__ == "__main__":

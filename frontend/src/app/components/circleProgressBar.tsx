@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 interface CircularProgressBarProps {
   maxValue: number;
@@ -38,27 +38,12 @@ const CircularProgressBar: React.FC<CircularProgressBarProps> = ({ maxValue, cur
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} viewBox="0 0 120 120" className="transform -rotate-90">
-        <circle
-          cx="60"
-          cy="60"
-          r={radius}
-          stroke="rgb(209, 213, 219)"
-          strokeWidth="10"
-          fill="transparent"
-        />
-        <circle
-          cx="60"
-          cy="60"
-          r={radius}
-          stroke="rgb(59, 130, 246)"
-          strokeWidth="10"
-          fill="transparent"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          style={{ transition: 'stroke-dashoffset 0.5s ease' }}
-        />
+        <circle cx="60" cy="60" r={radius} stroke="rgb(209, 213, 219)" strokeWidth="10" fill="transparent" />
+        <circle cx="60" cy="60" r={radius} stroke="rgb(59, 130, 246)" strokeWidth="10" fill="transparent" strokeDasharray={circumference} strokeDashoffset={offset} style={{ transition: "stroke-dashoffset 0.5s ease" }} />
       </svg>
-      <div className="absolute text-xl font-bold" style={{ fontSize: size / 5 }}>{displayValue}</div>
+      <div className="absolute text-xl font-bold" style={{ fontSize: size / 5 }}>
+        {displayValue}
+      </div>
     </div>
   );
 };

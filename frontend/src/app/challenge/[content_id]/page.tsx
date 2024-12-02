@@ -4,7 +4,7 @@ import React, { use, useState, useEffect } from "react";
 import TextArea from "./components/textArea";
 import CircularProgressBar from "@/app/components/circleProgressBar";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
 
 // app/challenge/[content_id]/page.tsx
 //urlの[content_id]を取得
@@ -19,11 +19,11 @@ export default function ContentPage({ params }: PageProps) {
 
   useEffect(() => {
     // 問題のデータを取得
-    fetch(apiUrl+"/api/get-problems/"+id)
+    fetch(apiUrl + "/api/challenges-list/get/" + id)
       .then((response) => response.json())
       .then((data) => {
         const imgUrl = data.problem.imgUrl;
-        setImageUrl(apiUrl+imgUrl);
+        setImageUrl(apiUrl + imgUrl);
       })
       .catch((error) => console.error("Error:", error));
   }, [id]);
@@ -77,7 +77,7 @@ export default function ContentPage({ params }: PageProps) {
 function OdaiImage({ id, imageUrl }: { id: string; imageUrl: string }) {
   return (
     <div
-      className="bg-white p-4 h-full w-full rounded-lg shadow-lg 
+      className="bg-white p-4 h-full w-full rounded-lg shadow-lg
       bg-cover bg-center"
       style={{ backgroundImage: `url(${imageUrl})` }} //背景にお題画像
     >
@@ -100,7 +100,7 @@ function GenImage({ id, base64 }: { id: string; base64: string }) {
 function Score({ id }: { id: string }) {
   return (
     <div className="bg-white p-4 w-full rounded-lg shadow-lg">
-      <CircularProgressBar maxValue={100} currentValue={90} size={350}/>
+      <CircularProgressBar maxValue={100} currentValue={90} size={350} />
     </div>
   );
 }

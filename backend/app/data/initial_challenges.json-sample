@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "ch001",
+    "title": "大鳥居とシカ",
+    "image_path": "/api/img/ch_2d6fe5d1bfe170c5f5113afbe21d39cfe181ac9e12cadb2b7ee98a7d7592d111",
+    "image_hash": "2d6fe5d1bfe170c5f5113afbe21d39cfe181ac9e12cadb2b7ee98a7d7592d111"
+  },
+  {
+    "_id": "ch002",
+    "title": "スクランブル交差点",
+    "image_path": "/api/img/ch_0cb334e8a405767c916a0bfb5f7c3b13d87dcf5e174bc704bb788589c572cca0",
+    "image_hash": "0cb334e8a405767c916a0bfb5f7c3b13d87dcf5e174bc704bb788589c572cca0"
+  },
+  {
+    "_id": "ch003",
+    "title": "桜と鯉のぼり",
+    "image_path": "/api/img/ch_6d1cf5f17f8bf73e943bb7a5b8a3dbd1165eb976b1c25d4254b8313ec33655cd",
+    "image_hash": "6d1cf5f17f8bf73e943bb7a5b8a3dbd1165eb976b1c25d4254b8313ec33655cd"
+  }
+]

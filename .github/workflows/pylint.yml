@@ -1,4 +1,4 @@
-name: Pylint
+name: "[Auto] Python Linter"
 
 on: [push, pull_request]
 
@@ -17,7 +17,9 @@ jobs:
 
       - name: Install dependencies
         run: |
+          cd ./backend
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
           pip install pylint
 
       - name: Run pylint
