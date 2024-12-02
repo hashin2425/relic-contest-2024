@@ -8,7 +8,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from app.api.v1.endpoints import challenges_list as challenges_list_v1, challenges_func as challenges_func_v1, users as users_v1, image as image_v1
+from app.api.v1.endpoints import (
+    challenges_list as challenges_list_v1,
+    challenges_func as challenges_func_v1,
+    users as users_v1,
+    image as image_v1,
+    auth as auth_v1,
+)
 from app.core.mongodb_core import db
 
 dotenv.load_dotenv()
@@ -68,6 +74,11 @@ app.include_router(
     image_v1.api_router,
     prefix="/api/img",
     tags=["image"],
+)
+app.include_router(
+    auth_v1.api_router,
+    prefix="/api/auth",
+    tags=["auth"],
 )
 
 
