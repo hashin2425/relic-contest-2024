@@ -25,8 +25,6 @@ services:
       MONGO_PASSWORD: ${MONGO_PASSWORD}
       MONGO_INITDB_DATABASE: challenges_db
       PASS_INITIALIZE_MONGO_SETUP: "False"
-    ports:
-      - "15000:5000"
     depends_on:
       mongodb: # `mongodb`というネームでサービスを指定できるようにする
         condition: service_healthy # `mongodb`サービスが正常に動作している場合のみ起動する
