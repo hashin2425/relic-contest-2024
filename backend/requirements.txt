@@ -1,6 +1,6 @@
 fastapi==0.115.5
 groq==0.13.1
-pydantic==2.10.1
+pydantic==2.10.4
 python-dotenv==1.0.1
 python-multipart==0.0.18
 requests==2.32.3
