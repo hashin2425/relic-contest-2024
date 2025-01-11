@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 
 export default function Header({ onLoginClick }: { onLoginClick: () => void }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
 
   useEffect(() => {
     // localStorageからトークンを確認してログイン状態を判定
@@ -13,7 +12,6 @@ export default function Header({ onLoginClick }: { onLoginClick: () => void }) {
     // ユーザー名を取得（localStorageから、もしくはAPIで）
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
-      setUsername(storedUsername);
     }
   }, []);
 
@@ -22,23 +20,24 @@ export default function Header({ onLoginClick }: { onLoginClick: () => void }) {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     setIsLoggedIn(false);
-    setUsername("");
     window.location.reload();
   };
 
   return (
     <div className="bg-orange-400 py-2 flex items-center justify-between px-4">
       <Link href="/">
-        <h1 className="text-2xl font-bold text-white">英語学習アプリ</h1>
+        <h1 className="text-2xl font-bold text-white">PictoWrite - 英語学習アプリ</h1>
       </Link>
 
       <div className="flex items-center gap-4">
         {isLoggedIn ? (
           <>
             <div className="flex items-center gap-2 text-white">
-              <span>{username || "ユーザー"}</span>
+              <a href="/user" className="bg-white text-orange-400 px-4 py-1 rounded font-bold hover:bg-orange-50 transition-colors">
+                ユーザー情報
+              </a>
             </div>
-            <button onClick={handleLogout} className="bg-white text-orange-400 px-4 py-1 rounded font-bold hover:bg-orange-50 transition-colors">
+            <button onClick={handleLogout} className="underline text-white">
               ログアウト
             </button>
           </>
