@@ -7,11 +7,13 @@ from fastapi import APIRouter, HTTPException, UploadFile
 from app.models.pydantic_models import MessagesRequest
 from app.services.groq_services import GroqClient
 from app.utils.image_utils import encode_image
+from app.core.security import require_auth
 
 api_router = APIRouter()
 
 
 @api_router.post("/chat")
+@require_auth()
 async def return_message_from_chat(request: MessagesRequest):
     """チャットリクエストをGroqクライアントに送信し、応答を返す"""
     groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
@@ -20,6 +22,7 @@ async def return_message_from_chat(request: MessagesRequest):
 
 
 @api_router.post("/analyze-image")
+@require_auth()
 async def analyze_image(file: UploadFile):
     """画像がJPEGまたはPNG形式であることを確認"""
     groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
@@ -48,6 +51,7 @@ async def analyze_image(file: UploadFile):
 
 
 @api_router.post("/analyze-base64image")
+@require_auth()
 async def analyze_base64image(base64_image: str):
     """Base64エンコードされた画像をGroqに渡して説明を取得"""
     groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
@@ -70,6 +74,7 @@ async def analyze_base64image(base64_image: str):
 
 
 @api_router.post("/create-image")
+@require_auth()
 async def create_image(prompt: str):
     """画像生成のためのAPIキーとURL"""
     api_key = os.getenv("SEGMIND_KEY")
