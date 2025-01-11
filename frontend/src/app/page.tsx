@@ -58,7 +58,7 @@ function Right() {
 
 // 問題を並べるところ
 function ChallengeCardList() {
-  const [cards, setCards] = useState<{ id: number; title: string; description: string }[]>([]);
+  const [cards, setCards] = useState<{ id: number; title: string; description: string; imgUrl: string }[]>([]);
 
   useEffect(() => {
     // 問題リストのデータを取得
@@ -68,10 +68,11 @@ function ChallengeCardList() {
         //console.log(data);
 
         //jsonを展開
-        const transformedData = data.problems.map((problem: { id: string; title: string; description: string }) => ({
+        const transformedData = data.problems.map((problem: { id: string; title: string; description: string; imgUrl: string }) => ({
           id: problem.id, // IDはアルファベットを含む文字列
           title: problem.title,
           description: problem.description,
+          imgUrl: problem.imgUrl,
         }));
         setCards(transformedData);
       })
@@ -85,24 +86,29 @@ function ChallengeCardList() {
       <div className="space-y-4">
         {cards.map((card) => (
           //カードを配置
-          <ChallengeCard key={card.id} id={card.id} title={card.title} description={card.description} />
+          <ChallengeCard key={card.id} id={card.id} title={card.title} description={card.description} imgUrl={card.imgUrl} />
         ))}
       </div>
     </div>
   );
 }
 
-function ChallengeCard({ id, title, description }: { id: number; title: string; description?: string }) {
+function ChallengeCard({ id, title, description, imgUrl }: { id: number; title: string; description?: string; imgUrl: string }) {
   return (
-    <Link
-      href={`/challenge/${id}`}
-      className="block bg-white p-4 h-48
-    rounded-md shadow-lg shadow-gray-500/50
-    transition-transform transform hover:scale-105 hover:shadow-2xl"
-    >
-      <h3 className="text-xl font-bold">{title}</h3>
-      <p>ID: {id}</p>
-      <p>{description}</p>
+    <Link href={`/challenge/${id}`} className="group relative block h-48 overflow-hidden rounded-md shadow-lg shadow-gray-500/50 transition-transform hover:scale-105 hover:shadow-2xl">
+      {/* 背景画像コンテナ */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${imgUrl})` }} />
+        {/* ぼかし効果のオーバーレイ */}
+        <div className="absolute inset-0 backdrop-blur-sm bg-white/80" />
+      </div>
+
+      {/* コンテンツ */}
+      <div className="relative h-full p-4 flex flex-col">
+        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+        <p className="text-sm text-gray-700">ID: {id}</p>
+        {description && <p className="mt-2 text-gray-800 line-clamp-2">{description}</p>}
+      </div>
     </Link>
   );
 }
