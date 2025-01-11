@@ -10,7 +10,9 @@
         "PYTHONUNBUFFERED",
         "sakura",
         "SEGMIND",
-        "venv"
+        "venv",
+        "PictoWrite",
+        "Vision"
     ],
     "python.testing.unittestArgs": [
         "-v",
