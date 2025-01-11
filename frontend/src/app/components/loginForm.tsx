@@ -27,7 +27,7 @@ export default function LoginForm({ onClose }: { onClose: () => void }) {
       const data = await response.json();
 
       // ログイン成功時の処理
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", data.access_token);
       localStorage.setItem("username", username);
       onClose();
       window.location.reload();
