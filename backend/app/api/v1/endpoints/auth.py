@@ -8,6 +8,7 @@ import dotenv
 
 from app.core.security import create_access_token, create_refresh_token, verify_password, get_current_user
 from app.models.auth_models import Token, UserLogin
+from app.core.security import require_auth
 
 api_router = APIRouter()
 security = HTTPBearer()
@@ -34,14 +35,24 @@ async def login(user_data: UserLogin) -> Any:
             detail="Incorrect id or password",
         )
 
-    return {"access_token": create_access_token({"sub": user_data.id}), "refresh_token": create_refresh_token({"sub": user_data.id}), "token_type": "bearer"}
+    return {
+        "access_token": create_access_token({"sub": user_data.id}),
+        "refresh_token": create_refresh_token({"sub": user_data.id}),
+        "token_type": "bearer",
+    }
 
 
 @api_router.post("/refresh", response_model=Token)
+@require_auth()
 async def refresh_token(current_user: dict = Depends(get_current_user)) -> Any:
-    return {"access_token": create_access_token({"sub": current_user["sub"]}), "refresh_token": create_refresh_token({"sub": current_user["sub"]}), "token_type": "bearer"}
+    return {
+        "access_token": create_access_token({"sub": current_user["sub"]}),
+        "refresh_token": create_refresh_token({"sub": current_user["sub"]}),
+        "token_type": "bearer",
+    }
 
 
 @api_router.get("/me")
+@require_auth()
 async def read_users_me(current_user: dict = Depends(get_current_user)):
     return {"id": current_user["sub"]}
