@@ -1,6 +1,5 @@
+import urlCreator from "@/lib/UrlCreator";
 import React, { useState } from "react";
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 type TextLogProps = {
   inputText: string;
@@ -44,7 +43,7 @@ export default function TextArea({ id, handleCreateImage }: TextAreaProps) {
 
     try {
       // テキストをPOST
-      const response = await fetch(apiUrl + "/api/chat", {
+      const response = await fetch(urlCreator("/api/challenges-func/chat"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +64,6 @@ export default function TextArea({ id, handleCreateImage }: TextAreaProps) {
 
       // TODO: 呼び出しタイミングを考える (数回に一回？)
       //await handleCreateImage(input);
-
     } catch (error) {
       console.error("Error:", error);
     }

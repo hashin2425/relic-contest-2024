@@ -3,8 +3,7 @@
 import React, { use, useState, useEffect } from "react";
 import TextArea from "./components/textArea";
 import CircularProgressBar from "@/app/components/circleProgressBar";
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+import urlCreator from "@/lib/UrlCreator";
 
 // app/challenge/[content_id]/page.tsx
 //urlの[content_id]を取得
@@ -19,11 +18,11 @@ export default function ContentPage({ params }: PageProps) {
 
   useEffect(() => {
     // 問題のデータを取得
-    fetch(apiUrl + "/api/challenges-list/get/" + id)
+    fetch(urlCreator("/api/challenges-list/get/" + id))
       .then((response) => response.json())
       .then((data) => {
         const imgUrl = data.problem.imgUrl;
-        setImageUrl(apiUrl + imgUrl);
+        setImageUrl(urlCreator(imgUrl));
       })
       .catch((error) => console.error("Error:", error));
   }, [id]);
@@ -34,7 +33,7 @@ export default function ContentPage({ params }: PageProps) {
     try {
       console.log(prompt);
 
-      const response = await fetch(apiUrl + "/api/create-image", {
+      const response = await fetch(urlCreator("/api/challenges-func/create-image"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,8 +47,7 @@ export default function ContentPage({ params }: PageProps) {
     } catch (error) {
       console.error("Error handleCreateImage:", error);
     }
-  }
-  
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -58,13 +56,13 @@ export default function ContentPage({ params }: PageProps) {
           <OdaiImage id={id} imageUrl={odaiImageUrl} />
         </div>
         <div className="flex-1 p-4">
-          <GenImage id={id} base64={generatedImageBase64}/>
+          <GenImage id={id} base64={generatedImageBase64} />
         </div>
       </div>
 
       <div className="flex flex-1">
         <div className="flex-[7] p-4">
-          <TextArea id={id} handleCreateImage={handleCreateImage}/>
+          <TextArea id={id} handleCreateImage={handleCreateImage} />
         </div>
         <div className="flex-[3] p-4">
           <Score id={id} />
@@ -92,8 +90,7 @@ function GenImage({ id, base64 }: { id: string; base64: string }) {
       className="bg-white p-4 h-full w-full rounded-lg shadow-lg 
       bg-cover bg-center"
       style={{ backgroundImage: `url(data:image/png;base64,${base64})` }} //背景に生成された画像
-    >
-    </div>
+    ></div>
   );
 }
 

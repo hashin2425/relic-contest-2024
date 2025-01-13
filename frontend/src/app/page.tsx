@@ -1,8 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+import urlCreator from "@/lib/UrlCreator";
 
 // Home : ダッシュボードとか？
 export default function Home() {
@@ -62,7 +61,7 @@ function ChallengeCardList() {
 
   useEffect(() => {
     // 問題リストのデータを取得
-    fetch(apiUrl + "/api/challenges-list/get-all")
+    fetch(urlCreator("/api/challenges-list/get-all"))
       .then((response) => response.json())
       .then((data) => {
         //console.log(data);
@@ -98,7 +97,7 @@ function ChallengeCard({ id, title, description, imgUrl }: { id: number; title: 
     <Link href={`/challenge/${id}`} className="group relative block h-48 overflow-hidden rounded-md shadow-lg shadow-gray-500/50 transition-transform hover:scale-105 hover:shadow-2xl">
       {/* 背景画像コンテナ */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${imgUrl})` }} />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${urlCreator(imgUrl)})` }} />
         {/* ぼかし効果のオーバーレイ */}
         <div className="absolute inset-0 backdrop-blur-sm bg-white/80" />
       </div>

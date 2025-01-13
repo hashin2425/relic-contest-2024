@@ -1,3 +1,4 @@
+import urlCreator from "@/lib/UrlCreator";
 import { useState } from "react";
 
 export default function LoginForm({ onClose }: { onClose: () => void }) {
@@ -12,7 +13,7 @@ export default function LoginForm({ onClose }: { onClose: () => void }) {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(urlCreator("/api/auth/login"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

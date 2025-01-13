@@ -1,5 +1,6 @@
 "use client";
 
+import urlCreator from "@/lib/UrlCreator";
 import React, { useEffect, useState } from "react";
 
 export default function UserPage() {
@@ -8,7 +9,7 @@ export default function UserPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch("/api/auth/me", {
+        const response = await fetch(urlCreator("/api/auth/me"), {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
