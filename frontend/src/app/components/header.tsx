@@ -1,28 +1,12 @@
 import Link from "next/link";
-import { useState, useEffect } from "react";
 
-export default function Header({ onLoginClick }: { onLoginClick: () => void }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+interface HeaderProps {
+  isLoggedIn: boolean;
+  onLoginClick: () => void;
+  handleLogout: () => void;
+}
 
-  useEffect(() => {
-    // localStorageからトークンを確認してログイン状態を判定
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-
-    // ユーザー名を取得（localStorageから、もしくはAPIで）
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-    }
-  }, []);
-
-  const handleLogout = () => {
-    // ログアウト処理
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    setIsLoggedIn(false);
-    window.location.reload();
-  };
-
+export default function Header({ isLoggedIn, onLoginClick, handleLogout }: HeaderProps) {
   return (
     <div className="bg-orange-400 py-2 flex items-center justify-between px-4">
       <Link href="/">
