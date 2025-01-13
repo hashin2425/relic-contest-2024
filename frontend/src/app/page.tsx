@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import urlCreator from "@/lib/UrlCreator";
+import { useAuth } from "@/app/layout-client";
 
 // Home : ダッシュボードとか？
 export default function Home() {
@@ -93,8 +94,10 @@ function ChallengeCardList() {
 }
 
 function ChallengeCard({ id, title, description, imgUrl }: { id: number; title: string; description?: string; imgUrl: string }) {
+  const { isLoggedIn } = useAuth();
+
   return (
-    <Link href={`/challenge/${id}`} className="group relative block h-48 overflow-hidden rounded-md shadow-lg shadow-gray-500/50 transition-transform hover:scale-105 hover:shadow-2xl">
+    <div className="group relative block h-48 overflow-hidden rounded-md shadow-lg shadow-gray-500/50">
       {/* 背景画像コンテナ */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${urlCreator(imgUrl)})` }} />
@@ -106,8 +109,17 @@ function ChallengeCard({ id, title, description, imgUrl }: { id: number; title: 
       <div className="relative h-full p-4 flex flex-col">
         <h3 className="text-xl font-bold text-gray-900">{title}</h3>
         <p className="text-sm text-gray-700">ID: {id}</p>
-        {description && <p className="mt-2 text-gray-800 line-clamp-2">{description}</p>}
+        <p className="mt-2 text-gray-800 line-clamp-2">{description}</p>
+        <div className="flex-grow flex items-end justify-end p-2">
+          {isLoggedIn === true ? (
+            <Link href={`/challenge/${id}`} className="bg-white text-orange-500 font-bold p-2 rounded transition-transform hover:scale-105 hover:shadow-2xl">
+              プレイする
+            </Link>
+          ) : (
+            <span className="bg-white p-2 rounded">（プレイするにはログインが必要です）</span>
+          )}
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }

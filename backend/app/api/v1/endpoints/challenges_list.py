@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 from app.core.mongodb_core import db
-
+from app.core.security import require_auth
 
 api_router = APIRouter()
 
@@ -32,6 +32,7 @@ async def get_challenges():
 
 
 @api_router.get("/get/{challenge_id}")
+@require_auth()
 async def get_challenge(challenge_id: str):
     """チャレンジ詳細を取得するエンドポイント"""
     challenge_data = await db.get_challenge_by_id(challenge_id)

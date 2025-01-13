@@ -4,6 +4,7 @@ import React, { use, useState, useEffect } from "react";
 import TextArea from "./components/textArea";
 import CircularProgressBar from "@/app/components/circleProgressBar";
 import urlCreator from "@/lib/UrlCreator";
+import { useAuth } from "@/app/layout-client";
 
 // app/challenge/[content_id]/page.tsx
 //urlの[content_id]を取得
@@ -15,8 +16,13 @@ export default function ContentPage({ params }: PageProps) {
   const { content_id: id } = use(params);
   const [odaiImageUrl, setImageUrl] = useState<string>("");
   const [generatedImageBase64, setGeneratedImage] = useState<string>("");
+  const { isLoggedIn } = useAuth();
 
   useEffect(() => {
+    if (!isLoggedIn) {
+      return;
+    }
+
     // 問題のデータを取得
     fetch(urlCreator("/api/challenges-list/get/" + id))
       .then((response) => response.json())
@@ -51,6 +57,13 @@ export default function ContentPage({ params }: PageProps) {
 
   return (
     <div className="flex flex-col h-screen">
+      {isLoggedIn === false ? (
+        <>
+          <div className="bg-red-500 text-white p-4 m-4 rounded shadow-lg">プレイにはログインが必要です</div>
+        </>
+      ) : (
+        <></>
+      )}
       <div className="flex flex-1">
         <div className="flex-1 p-4">
           <OdaiImage id={id} imageUrl={odaiImageUrl} />
