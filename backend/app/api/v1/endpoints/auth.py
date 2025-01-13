@@ -23,7 +23,7 @@ MOCK_USER = {
 
 @api_router.post("/login", response_model=Token)
 async def login(user_data: UserLogin) -> Any:
-    logging(user_data, MOCK_USER)
+    # logging(user_data, MOCK_USER) # 確認用のコードだが、認証情報が平文で出力されるので注意
     if user_data.id != MOCK_USER["id"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
