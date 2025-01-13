@@ -7,3 +7,6 @@
 
 # docker-compose で利用する .env ファイルを無視します
 .env
+
+# Googleドキュメントにて共有するため、除外する
+copilot-instructions.md
