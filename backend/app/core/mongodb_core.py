@@ -4,10 +4,14 @@ from datetime import datetime
 from typing import List
 import json
 import os
+
+from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.models.mongodb_models import Challenge
 from app.core.exceptions import ServiceUnavailableError
+
+load_dotenv()
 
 
 class MongoDB:
@@ -19,7 +23,14 @@ class MongoDB:
 
     async def connect(self):
         """MongoDBに接続"""
-        mongodb_url = f"mongodb://{os.getenv('MONGO_USER')}:{os.getenv('MONGO_PASSWORD')}@mongodb:27017/challenges_db?authSource=admin"
+        MONGO_USER = os.getenv("MONGO_USER", "")
+        MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "")
+        MONGO_URL = os.getenv("MONGO_URL", "mongodb:27017")
+
+        if MONGO_USER == "" or MONGO_PASSWORD == "":
+            raise ValueError("MongoDB username and password are required")
+
+        mongodb_url = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_URL}/challenges_db?authSource=admin"
         self.client = AsyncIOMotorClient(mongodb_url)
         self.db = self.client.challenges_db
 
