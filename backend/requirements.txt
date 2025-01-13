@@ -1,7 +1,7 @@
 # Application
 bcrypt
 fastapi==0.115.6
-pydantic==2.10.4
+pydantic==2.10.5
 PyJWT==2.10.1
 python-multipart==0.0.20
 requests==2.32.3
