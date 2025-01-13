@@ -91,9 +91,9 @@ export default function TextArea({ id, handleCreateImage }: TextAreaProps) {
       {/* 下部, テキスト入力欄 */}
       <div className="flex-[1] bg-gray-200 p-2">
         <form className="flex items-center space-x-1 mx-1" onSubmit={handleSubmit}>
-          <input type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} placeholder="This is a pen." className="p-2 flex-1 border border-gray-300 rounded-l-xl" />
+          <input type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} placeholder="英語で説明してみよう！" className="p-2 flex-1 border border-gray-300 rounded-l-xl" />
           <button type="submit" className="p-2 bg-blue-500 text-white rounded-r-xl">
-            submit
+            とりあえず提出してみる
           </button>
         </form>
       </div>

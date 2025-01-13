@@ -26,12 +26,14 @@ export default function UserPage() {
     fetchUserData();
   }, []);
 
+  const h2style = "text-2xl font-bold my-4 mt-8 pl-2 border-l-8 border-orange-400";
+
   return (
     <main className="flex justify-center p-4">
       <div className="p-4 bg-white w-1/2 min-w-96 border rounded">
         <h1 className="text-3xl font-bold">ユーザー情報</h1>
 
-        <h2 className="text-2xl font-bold py-4">基本情報</h2>
+        <h2 className={h2style}>基本情報</h2>
         <table className="w-full">
           <tbody>
             <tr>
@@ -49,10 +51,10 @@ export default function UserPage() {
           </tbody>
         </table>
 
-        <h2 className="text-2xl font-bold py-4">プレイ記録</h2>
+        <h2 className={h2style}>プレイ記録</h2>
         <p>（未対応です）</p>
 
-        <h2 className="text-2xl font-bold py-4">英語力測定</h2>
+        <h2 className={h2style}>英語力測定</h2>
         <p>（未対応です）</p>
       </div>
     </main>

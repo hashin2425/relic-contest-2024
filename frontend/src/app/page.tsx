@@ -4,54 +4,44 @@ import Link from "next/link";
 import urlCreator from "@/lib/UrlCreator";
 import { useAuth } from "@/app/layout-client";
 
-// Home : ダッシュボードとか？
 export default function Home() {
   return (
     <div className="flex h-screen">
-      <Left />
-      <Right />
+      <HalfPanel h1="Challenges" h2="テーマを選んで、問題に取り組んでみよう！">
+        <ChallengeCardList />
+      </HalfPanel>
+      <HalfPanel h1="How to Play" h2="このアプリの遊び方は…">
+        <div className="mt-8">
+          <div className="bg-gray-50 p-8">
+            <h3 className="text-2xl font-bold">① 写真の情景を英語で説明</h3>
+            <p>写真に写っているものを表現してみよう</p>
+          </div>
+          <div className=" p-8">
+            <h3 className="text-2xl font-bold">② AIが文章に応じて画像を生成</h3>
+            <p>あなたが入力した英文を基に、AIがイラストを生成します</p>
+          </div>
+          <div className="bg-gray-50 p-8">
+            <h3 className="text-2xl font-bold">③ お題写真との一致率を測定</h3>
+            <p>充分に写真に写っているものを十分に説明できていれば高得点になります！</p>
+          </div>
+          <div className=" p-8">
+            <h3 className="text-2xl font-bold">表現力を高めよう！</h3>
+            <p>英文作成をサポートする各種ヒントを提供します（実装予定）</p>
+          </div>
+        </div>
+      </HalfPanel>
     </div>
   );
 }
 
-function Left() {
+function HalfPanel({ h1, h2, children }: { h1: string; h2: string; children?: React.ReactNode }) {
   return (
     <div className="w-1/2 bg-gray-200">
-      <div className="p-8">
-        <h2 className="text-8xl font-semibold">Challenge</h2>
-        <p>まずはとにかくチャレンジ!!</p>
+      <div className="pt-8 pl-8">
+        <h2 className="text-6xl font-semibold">{h1}</h2>
+        <p className="py-4">{h2}</p>
       </div>
-      <ChallengeCardList />
-    </div>
-  );
-}
-
-function Right() {
-  return (
-    <div className="w-1/2 bg-gray-100">
-      <div className="p-8">
-        <h2 className="text-8xl font-semibold">Instructions</h2>
-        <p>本サービスの利用方法</p>
-      </div>
-
-      <div className="mt-4 ">
-        <div className="bg-gray-50 p-8">
-          <h3 className="text-4xl font-bold">① 写真の情景を英語で説明</h3>
-          <p>写真に写っているものを表現してみよう</p>
-        </div>
-        <div className=" p-8">
-          <h3 className="text-4xl font-bold">② AIが文章に応じて画像を生成</h3>
-          <p>入力された英文を基にAIがイラストを生成</p>
-        </div>
-        <div className="bg-gray-50 p-8">
-          <h3 className="text-4xl font-bold">③ お題写真との一致率を測定</h3>
-          <p>充分に写真の要素を説明できていれば高得点</p>
-        </div>
-        <div className=" p-8">
-          <h3 className="text-4xl font-bold">表現力を高めよう！</h3>
-          <p>英文作成をサポートする各種ヒントを提供</p>
-        </div>
-      </div>
+      <div>{children}</div>
     </div>
   );
 }
