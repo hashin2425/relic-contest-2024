@@ -11,7 +11,6 @@ services:
       - backend
     networks:
       - app-network
-      - monitoring
 
   backend:
     env_file:
@@ -30,7 +29,6 @@ services:
         condition: service_healthy # `mongodb`サービスが正常に動作している場合のみ起動する
     networks:
       - app-network
-      - monitoring
 
   nginx:
     image: nginx:latest
@@ -43,49 +41,6 @@ services:
       - backend
     networks:
       - app-network
-
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    networks:
-      - monitoring
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
-      - "--web.console.templates=/usr/share/prometheus/consoles"
-
-  grafana:
-    image: grafana/grafana:latest
-    volumes:
-      - grafana_data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    networks:
-      - monitoring
-    depends_on:
-      - prometheus
-      - loki
-
-  loki:
-    image: grafana/loki:latest
-    command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - monitoring
-    volumes:
-      - loki_data:/loki
-
-  promtail:
-    image: grafana/promtail:latest
-    volumes:
-      - ./promtail/promtail.yml:/etc/promtail/config.yml
-      - /var/log:/var/log
-    command: -config.file=/etc/promtail/config.yml
-    networks:
-      - monitoring
 
   mongodb:
     image: mongo:latest
@@ -110,10 +65,6 @@ services:
 
 networks:
   app-network:
-  monitoring:
 
 volumes:
   mongodb_data:
-  prometheus_data:
-  grafana_data:
-  loki_data:
