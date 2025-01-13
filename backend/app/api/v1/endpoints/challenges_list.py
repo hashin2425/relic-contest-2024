@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 from app.core.mongodb_core import db
 from app.core.security import require_auth
+from app.utils.log_utils import logging
 
 api_router = APIRouter()
 

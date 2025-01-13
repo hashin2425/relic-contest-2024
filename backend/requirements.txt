@@ -1,11 +1,21 @@
+# Application
+bcrypt
 fastapi==0.115.6
-groq==0.13.1
 pydantic==2.10.4
-python-dotenv==1.0.1
+PyJWT==2.10.1
 python-multipart==0.0.20
 requests==2.32.3
 uvicorn==0.34.0
-motor==3.6.0
+
+# Database
 # pymongo==4.9.2
-PyJWT==2.10.1
-bcrypt
+motor==3.6.0
+
+# Generative AI
+groq==0.13.1
+
+# for Development
+python-dotenv==1.0.1
+
+# Others
+tzdata==2024.2

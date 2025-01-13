@@ -10,6 +10,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.models.mongodb_models import Challenge
 from app.core.exceptions import ServiceUnavailableError
+from app.utils.log_utils import logging
+
 
 load_dotenv()
 
@@ -37,9 +39,9 @@ class MongoDB:
         # 接続テスト
         try:
             await self.client.admin.command("ping")
-            print("Successfully connected to MongoDB")
+            logging("Successfully connected to MongoDB")
         except Exception as e:
-            print(f"Failed to connect to MongoDB: {e}")
+            logging(f"Failed to connect to MongoDB: {e}")
             raise
 
     async def close(self):
@@ -63,7 +65,7 @@ class MongoDB:
                 challenge["created_at"] = datetime.utcnow()
                 await self.db.challenges.insert_one(challenge)
         except Exception as e:
-            print(f"Error loading initial challenges: {e}")
+            logging(f"Error loading initial challenges: {e}")
 
     async def get_all_challenges(self) -> List[Challenge]:
         """全チャレンジを取得"""

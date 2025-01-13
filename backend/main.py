@@ -16,7 +16,9 @@ from app.api.v1.endpoints import (
     auth as auth_v1,
 )
 from app.core.mongodb_core import db
+from app.utils.log_utils import logging
 
+logging("Starting FastAPI server...")
 dotenv.load_dotenv()
 server_start_time = datetime.now()
 
@@ -41,11 +43,11 @@ app.add_middleware(
 async def startup_db_client():
     """アプリケーション起動時の処理"""
     if os.getenv("PASS_INITIALIZE_MONGO_SETUP", "True") == "False":
-        print("Initializing MongoDB setup...")
+        logging("Initializing MongoDB setup...")
         await db.connect()
         await db.init_challenges()
     else:
-        print("Skip initializing MongoDB setup.")
+        logging("Skip initializing MongoDB setup.")
 
 
 @app.on_event("shutdown")

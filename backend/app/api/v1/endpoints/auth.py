@@ -9,6 +9,7 @@ import dotenv
 from app.core.security import create_access_token, create_refresh_token, verify_password, get_current_user
 from app.models.auth_models import Token, UserLogin
 from app.core.security import require_auth
+from app.utils.log_utils import logging
 
 api_router = APIRouter()
 security = HTTPBearer()
@@ -22,7 +23,7 @@ MOCK_USER = {
 
 @api_router.post("/login", response_model=Token)
 async def login(user_data: UserLogin) -> Any:
-    print(user_data, MOCK_USER)
+    logging(user_data, MOCK_USER)
     if user_data.id != MOCK_USER["id"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -6,6 +6,7 @@ import traceback
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Path as FastAPIPath
 from fastapi.responses import FileResponse
+from app.utils.log_utils import logging
 
 api_router = APIRouter()
 
