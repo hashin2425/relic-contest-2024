@@ -100,6 +100,11 @@ docker-compose up -d
 
 # ワンライナーで実行したいなら。このコマンドで十分に動く
 docker-compose down -v | docker-compose up -d --build | docker-compose up -d
+
+# 特定のコンテナだけを再作成させたいときは
+docker-compose up -d --force-recreate {サービス名}
+docker-compose up -d --force-recreate backend
+docker-compose up -d --force-recreate frontend
 ```
 
 上記実行時にエラー（KeyError: 'ContainerConfig'）が出たときは、`docker-compose down`を実行してコンテナーを終了させる必要がある。
