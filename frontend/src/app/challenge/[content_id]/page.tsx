@@ -241,9 +241,11 @@ function ScoreCard({ currentScore }: { currentScore: number }) {
   return (
     <div className="bg-white p-4 w-full rounded-lg shadow-lg">
       <p className="pt-2 pb-4">
-        スコアが50, 75, 90を超えたときに
-        <br />
-        AIが画像を作ってくれます！
+        スコアが
+        <span className="mx-1 px-2 rounded text-white bg-red-500 font-bold">50</span>
+        <span className="px-2 rounded text-white bg-orange-500 font-bold">75</span>
+        <span className="mx-1 px-2 rounded text-white bg-green-500 font-bold">90</span>
+        を超えたときにAIが画像を作ってくれます！
       </p>
       <CircularProgressBar maxValue={100} currentValue={currentScore} size={280} />
     </div>
