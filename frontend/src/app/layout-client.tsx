@@ -29,7 +29,7 @@ interface ClientLayoutProps {
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
   const [isLoginFormVisible, setLoginFormVisible] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
       }
 
       try {
-        const response = await fetch(urlCreator("/api/auth/me"), {
+        const response = await fetch(urlCreator("/api/auth/is-logged-in"), {
           headers: {
             Authorization: `Bearer ${token}`,
           },

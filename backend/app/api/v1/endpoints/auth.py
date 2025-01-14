@@ -53,7 +53,15 @@ async def refresh_token(current_user: dict = Depends(get_current_user)) -> Any:
     }
 
 
+@api_router.get("/is-logged-in")
+@require_auth()
+async def is_logged_in(current_user: dict = Depends(get_current_user)):
+    # "/me"エンドポイントに比べると、呼び出される回数が多いため処理が軽くなるようにしたい
+    return {"message": "true", "id": current_user["sub"]}
+
+
 @api_router.get("/me")
 @require_auth()
 async def read_users_me(current_user: dict = Depends(get_current_user)):
+    # "/is-logged-in"エンドポイントに比べると、返却する情報量が多くなる
     return {"id": current_user["sub"]}

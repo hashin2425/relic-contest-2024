@@ -14,9 +14,15 @@ type PageProps = {
 
 export default function ContentPage({ params }: PageProps) {
   const { content_id: id } = use(params);
-  const [odaiImageUrl, setImageUrl] = useState<string>("");
+  const [isVisibleNotLoggedInMessage, setIsVisibleNotLoggedInMessage] = useState<boolean>(false);
   const [generatedImageBase64, setGeneratedImage] = useState<string>("");
   const { isLoggedIn } = useAuth();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisibleNotLoggedInMessage(true);
+    }, 1000);
+  });
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -57,7 +63,7 @@ export default function ContentPage({ params }: PageProps) {
 
   return (
     <div className="flex flex-col h-screen">
-      {isLoggedIn === false ? (
+      {isLoggedIn === false && isVisibleNotLoggedInMessage === true ? (
         <>
           <div className="bg-red-500 text-white p-4 m-4 rounded shadow-lg">プレイにはログインが必要です</div>
         </>
