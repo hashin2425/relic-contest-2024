@@ -1,3 +1,9 @@
+""" Challengeモデルに関するユーティリティ関数を定義する
+"""
+
+import re
+
+
 def convert_challenge_to_json_item(challenge) -> dict:
     """ChallengeモデルをJSONに変換する"""
     return {
@@ -6,3 +12,13 @@ def convert_challenge_to_json_item(challenge) -> dict:
         "imgUrl": challenge.image_path,
         "description": "",  # 未対応
     }
+
+
+def submission_validation(submission: str) -> bool:
+    """提出されたテキストのバリデーション"""
+    IS_TOO_LONG = len(submission) > 1000
+    IS_CONTAIN_INVALID_CHARS = re.match(r"^[a-zA-Z0-9., 　]+$", submission) is None
+
+    if IS_TOO_LONG or IS_CONTAIN_INVALID_CHARS:
+        return False
+    return True
