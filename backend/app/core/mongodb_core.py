@@ -54,8 +54,8 @@ class MongoDB:
         if self.db is None or self.db.challenges is None:
             return
 
-        if await self.db.challenges.count_documents({}) > 0:
-            return
+        # if await self.db.challenges.count_documents({}) > 0:
+        #     return
 
         try:
             with open("app/data/initial_challenges.json", "r", encoding="utf-8") as f:
@@ -63,6 +63,8 @@ class MongoDB:
 
             for challenge in challenges:
                 challenge["created_at"] = datetime.utcnow()
+                logging(challenge)
+                await self.db.challenges.delete_one({"_id": challenge["_id"]})
                 await self.db.challenges.insert_one(challenge)
         except Exception as e:
             logging(f"Error loading initial challenges: {e}")
