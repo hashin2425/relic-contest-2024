@@ -21,6 +21,7 @@ from app.utils.challenge_utils import convert_challenge_to_json_item, submission
 load_dotenv()
 api_router = APIRouter()
 user_challenges = defaultdict(None)
+SUBMIT_INTERVAL = 120  # 提出の間隔（秒）
 
 
 @api_router.post("/start-challenge")
@@ -56,6 +57,12 @@ async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(
     challenge = user_challenges[current_user["sub"]].now_challenge
     logging("Challenge submitted: ", request.submission, current_user["sub"], challenge)
 
+    # 提出の間隔をチェック
+    if user_challenges[current_user["sub"]].last_submitted_unix_time + SUBMIT_INTERVAL > get_jst_now().timestamp():
+        raise HTTPException(status_code=400, detail="Submission interval is too short.")
+    user_challenges[current_user["sub"]].last_submitted_unix_time = get_jst_now().timestamp()
+
+    # 提出テキストのバリデーション
     if not submission_validation(submission):
         raise HTTPException(status_code=400, detail="Submission text is invalid.")
 
