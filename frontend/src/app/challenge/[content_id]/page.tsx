@@ -28,7 +28,7 @@ export default function ContentPage({ params }: PageProps) {
   const { isLoggedIn } = useAuth();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    setTimeout(() => {
       setIsVisibleNotLoggedInMessage(true);
     }, 1000);
   });
@@ -141,8 +141,28 @@ export default function ContentPage({ params }: PageProps) {
 
 const TextAreaCard = ({ submissions, draftText, setDraftText, handleSubmit }: { submissions: SubmissionDisplayItems[]; draftText: string; setDraftText: React.Dispatch<React.SetStateAction<string>>; handleSubmit: () => void }) => {
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [lastSubmissionTime, setLastSubmissionTime] = useState<number>(0);
+  const [coolDownRemaining, setCoolDownRemaining] = useState<number>(0);
+  const COOL_DOWN_DURATION = 120; // seconds
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const timeElapsed = Math.floor((now - lastSubmissionTime) / 1000);
+      const remaining = Math.max(0, COOL_DOWN_DURATION - timeElapsed);
+      setCoolDownRemaining(remaining);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [lastSubmissionTime]);
 
   const validateSubmission = (text: string): boolean => {
+    // Check if in cooldown
+    if (coolDownRemaining > 0) {
+      setErrorMessage(`次の提出まで${coolDownRemaining}秒お待ちください！`);
+      return false;
+    }
+
     if (text === "" || text === null || text === undefined) {
       setErrorMessage("テキストを入力してください！");
       return false;
@@ -169,6 +189,7 @@ const TextAreaCard = ({ submissions, draftText, setDraftText, handleSubmit }: { 
     e.preventDefault();
 
     if (validateSubmission(draftText)) {
+      setLastSubmissionTime(Date.now());
       handleSubmit();
     }
   }
@@ -192,13 +213,13 @@ const TextAreaCard = ({ submissions, draftText, setDraftText, handleSubmit }: { 
               value={draftText || ""}
               onChange={(e) => {
                 setDraftText(e.target.value);
-                validateSubmission(e.target.value); // Validate on change
+                validateSubmission(e.target.value);
               }}
               placeholder="英語で説明してみよう！"
               className="p-2 flex-1 border border-gray-300 rounded-l-xl"
             />
-            <button type="submit" className="p-2 bg-blue-500 text-white rounded-r-xl hover:bg-blue-600 transition-colors">
-              とりあえず提出してみる
+            <button type="submit" className={`p-2 text-white rounded-r-xl transition-colors ${coolDownRemaining > 0 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`} disabled={coolDownRemaining > 0}>
+              {coolDownRemaining > 0 ? `${coolDownRemaining}秒待機中...` : "とりあえず提出してみる"}
             </button>
           </div>
           {errorMessage && <div className="text-red-500 text-sm font-bold px-2">{errorMessage}</div>}
