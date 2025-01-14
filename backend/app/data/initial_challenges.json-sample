@@ -3,18 +3,21 @@
     "_id": "ch001",
     "title": "大鳥居とシカ",
     "image_path": "/api/img/ch_2d6fe5d1bfe170c5f5113afbe21d39cfe181ac9e12cadb2b7ee98a7d7592d111",
-    "image_hash": "2d6fe5d1bfe170c5f5113afbe21d39cfe181ac9e12cadb2b7ee98a7d7592d111"
+    "image_hash": "2d6fe5d1bfe170c5f5113afbe21d39cfe181ac9e12cadb2b7ee98a7d7592d111",
+    "result_sample": "The image depicts a tranquil scene featuring a deer resting on the ground in the foreground, next to a blue wooden bench. Behind the deer, a large red torii gate, a traditional Japanese gate associated with Shinto shrines, dominates the background. The torii gate is positioned near the water, suggesting this is the iconic floating torii gate of Itsukushima Shrine. A stone lantern stands to the left of the scene, adding to the traditional atmosphere. The cloudy sky and distant mountains in the background enhance the serene and slightly overcast mood of the setting."
   },
   {
     "_id": "ch002",
     "title": "スクランブル交差点",
     "image_path": "/api/img/ch_0cb334e8a405767c916a0bfb5f7c3b13d87dcf5e174bc704bb788589c572cca0",
-    "image_hash": "0cb334e8a405767c916a0bfb5f7c3b13d87dcf5e174bc704bb788589c572cca0"
+    "image_hash": "0cb334e8a405767c916a0bfb5f7c3b13d87dcf5e174bc704bb788589c572cca0",
+    "result_sample": "The image shows a bustling urban street intersection on a wet, overcast day, with a zebra crossing and red markings visible on the wet road. Several vehicles, including small white vans and cars, are moving through the intersection, while a person on a bicycle is crossing. Surrounding the street are commercial buildings with storefronts and bright advertisements, including a sign for Matsumoto Kiyoshi, a well-known Japanese pharmacy chain. Trees with yellow and green foliage line the street, suggesting an autumn setting, while pedestrians walk along the sidewalks. In the background, modern high-rise buildings with glass facades and colorful billboards add to the vibrant cityscape."
   },
   {
     "_id": "ch003",
     "title": "桜と鯉のぼり",
     "image_path": "/api/img/ch_6d1cf5f17f8bf73e943bb7a5b8a3dbd1165eb976b1c25d4254b8313ec33655cd",
-    "image_hash": "6d1cf5f17f8bf73e943bb7a5b8a3dbd1165eb976b1c25d4254b8313ec33655cd"
+    "image_hash": "6d1cf5f17f8bf73e943bb7a5b8a3dbd1165eb976b1c25d4254b8313ec33655cd",
+    "result_sample": "The image shows a serene rural landscape during spring, with cherry blossom branches in full bloom framing the foreground. In the background, colorful carp streamers, known as koinobori, are strung across the sky, fluttering gently in the breeze. Below the streamers, rolling fields and trees, some of which are also blooming with cherry blossoms, extend toward a line of forested hills. The bright blue sky, dotted with soft white clouds, enhances the tranquil and festive atmosphere of the scene."
   }
 ]
