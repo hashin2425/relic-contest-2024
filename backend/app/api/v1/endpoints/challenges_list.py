@@ -4,19 +4,9 @@ from fastapi import APIRouter
 from app.core.mongodb_core import db
 from app.core.security import require_auth
 from app.utils.log_utils import logging
+from app.utils.challenge_utils import convert_challenge_to_json_item
 
 api_router = APIRouter()
-
-
-def convert_challenge_to_json_item(challenge) -> dict:
-    """ChallengeモデルをJSONに変換する"""
-    return {
-        "id": str(challenge.id),
-        "title": challenge.title,
-        "imgUrl": challenge.image_path,
-        "description": "",  # 未対応
-    }
-
 
 @api_router.get("/get-all")
 async def get_challenges():
