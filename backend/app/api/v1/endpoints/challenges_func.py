@@ -11,8 +11,9 @@ import requests
 
 from app.core.security import require_auth, get_current_user
 from app.core.mongodb_core import db
-from app.models.pydantic_models import  ChallengeRequest, SubmitRequest, UserChallenges
+from app.models.pydantic_models import ChallengeRequest, SubmitRequest, UserChallenges
 from app.services.groq_services import GroqClient
+from app.services.open_ai_services import ChatGPTClient
 from app.utils.image_utils import encode_image
 from app.utils.log_utils import logging
 from app.utils.time_utils import get_jst_now
@@ -69,7 +70,46 @@ async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(
     user_id = current_user["sub"]
 
     # groqによるチェック
-    score = user_challenges[user_id].last_submission_score + 1
+    score = user_challenges[user_id].last_submission_score
+    query_submission_to_score = f"""
+    As an AI evaluator, analyze the English text within the <Submission> tags and assess how comprehensively it covers the content provided in the <Result> tags. Output only a single integer score from 0 to 100, where:
+
+    - 100 indicates the submission fully covers all key points and details from the result
+    - 75 indicates most key points are covered with some minor omissions
+    - 50 indicates roughly half of the important content is covered
+    - 25 indicates only basic or surface-level coverage
+    - 0 indicates no relevant content coverage
+
+    Do not provide any explanation or additional text - output only the integer score.
+
+    <Result>
+    {challenge.get("result_sample", "")}
+    </Result>
+
+    <Submission>
+    {submission}
+    </Submission>
+    """
+    IS_USE_GROQ = False  # いったんFalseにしておく
+    if IS_USE_GROQ:
+        groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
+        response = groq_client.chat(
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": query_submission_to_score},
+                    ],
+                }
+            ]
+        )
+    else:
+        open_ai_client = ChatGPTClient()
+        response = open_ai_client.chat(query_submission_to_score)
+    try:
+        score = int(response)
+    except ValueError:
+        pass
 
     user_challenges[user_id].submissions.append(
         {
