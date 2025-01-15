@@ -3,6 +3,7 @@
 import os
 import base64
 import json
+import hashlib
 from collections import defaultdict
 
 from dotenv import load_dotenv
@@ -13,7 +14,8 @@ from app.core.security import require_auth, get_current_user
 from app.core.mongodb_core import db
 from app.models.pydantic_models import ChallengeRequest, SubmitRequest, UserChallenges
 from app.services.groq_services import GroqClient
-from app.services.open_ai_services import ChatGPTClient
+from app.services.open_ai_services import ChatGPTClient, DallE3Client
+from app.services.segmind_services import create_image as create_image_by_segmind
 from app.utils.image_utils import encode_image
 from app.utils.log_utils import logging
 from app.utils.time_utils import get_jst_now
@@ -56,6 +58,7 @@ async def start_challenge(request: ChallengeRequest, current_user: dict = Depend
 async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(get_current_user)):
     submission = request.submission
     challenge = user_challenges[current_user["sub"]].now_challenge
+    return_payload = {}
     logging("Challenge submitted: ", request.submission, current_user["sub"], challenge)
 
     # 提出の間隔をチェック
@@ -118,15 +121,30 @@ async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(
             "score": score,
         }
     )
+
+    last_submission_score = user_challenges[user_id].last_submission_score
+    new_submission_score = score
+    if (last_submission_score < 50 <= new_submission_score) or (last_submission_score < 75 <= new_submission_score) or (last_submission_score < 90 <= new_submission_score):
+        filename = "gen_" + hashlib.sha256(f"{user_id}_{get_jst_now().strftime('%Y%m%d%H%M%S')}".encode()).hexdigest()
+        prompt = f"Create an image that represents the following text: {submission}"
+        USE_DALLE3 = True
+        if USE_DALLE3:
+            open_ai_client = DallE3Client()
+            open_ai_client.generate(prompt, filename)
+            user_challenges[user_id].generated_image.append(filename)
+            return_payload["generated_img_url"] = "/api/img/" + filename
+        else:
+            _ = create_image_by_segmind(prompt, filename)
+            return_payload["generated_img_url"] = "/api/img/" + filename
+
     user_challenges[user_id].last_submitted_text = submission
     user_challenges[user_id].last_submission_score = score
 
-    return {
-        "message": "Submission successful!",
-        "submissions": user_challenges[user_id].submissions,
-        "last_submitted_text": user_challenges[user_id].last_submitted_text,
-        "last_submission_score": user_challenges[user_id].last_submission_score,
-    }
+    return_payload["message"] = "Submission successful!"
+    return_payload["submissions"] = user_challenges[user_id].submissions
+    return_payload["last_submitted_text"] = user_challenges[user_id].last_submitted_text
+    return_payload["last_submission_score"] = user_challenges[user_id].last_submission_score
+    return return_payload
 
 
 #

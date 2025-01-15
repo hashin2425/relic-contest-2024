@@ -69,7 +69,7 @@ export default function ContentPage({ params }: PageProps) {
           setDraftText(data.last_submission_content);
         }
         if (data.generated_img_url) {
-          setGeneratedImageUrl(data.generated_img_url);
+          setGeneratedImageUrl(urlCreator(data.generated_img_url));
         }
       })
       .catch((error) => console.error("Error:", error));
@@ -97,7 +97,7 @@ export default function ContentPage({ params }: PageProps) {
           setDraftText(data.last_submission_content);
         }
         if (data.generated_img_url) {
-          setGeneratedImageUrl(data.generated_img_url);
+          setGeneratedImageUrl(urlCreator(data.generated_img_url));
         }
       })
       .catch((error) => console.error("Error:", error));
