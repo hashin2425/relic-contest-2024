@@ -4,6 +4,7 @@ import React, { use, useState, useEffect } from "react";
 import CircularProgressBar from "@/app/components/circleProgressBar";
 import urlCreator from "@/lib/UrlCreator";
 import { useAuth } from "@/app/layout-client";
+import Link from "next/link";
 
 // app/challenge/[content_id]/page.tsx
 //urlの[content_id]を取得
@@ -18,7 +19,7 @@ type SubmissionDisplayItems = {
 };
 
 export default function ContentPage({ params }: PageProps) {
-  const { content_id: id } = use(params);
+  const { content_id: challengeId } = use(params);
   const [isVisibleNotLoggedInMessage, setIsVisibleNotLoggedInMessage] = useState<boolean>(false);
   const [challengeImageUrl, setChallengeImageUrl] = useState<string>("");
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
@@ -29,7 +30,7 @@ export default function ContentPage({ params }: PageProps) {
 
   useEffect(() => {
     setTimeout(() => {
-      setIsVisibleNotLoggedInMessage(true);
+      //////////////////setIsVisibleNotLoggedInMessage(true);
     }, 1000);
   });
 
@@ -39,7 +40,7 @@ export default function ContentPage({ params }: PageProps) {
     }
 
     // 問題のデータを取得
-    fetch(urlCreator("/api/challenges-list/get/" + id))
+    fetch(urlCreator("/api/challenges-list/get/" + challengeId))
       .then((response) => response.json())
       .then((data) => {
         const imgUrl = data.problem.imgUrl;
@@ -54,7 +55,7 @@ export default function ContentPage({ params }: PageProps) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({ challenge_id: id }),
+      body: JSON.stringify({ challenge_id: challengeId }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -73,7 +74,7 @@ export default function ContentPage({ params }: PageProps) {
         }
       })
       .catch((error) => console.error("Error:", error));
-  }, [id, isLoggedIn]);
+  }, [challengeId, isLoggedIn]);
 
   function handleSubmit() {
     fetch(urlCreator("/api/challenges-func/submit"), {
@@ -82,7 +83,7 @@ export default function ContentPage({ params }: PageProps) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({ submission: draftText }),
+      body: JSON.stringify({ submission: draftText, challenge_id: challengeId }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -132,7 +133,7 @@ export default function ContentPage({ params }: PageProps) {
         </div>
         <div className="flex-[3] p-4">
           {/* 右 */}
-          <ScoreCard currentScore={currentScore} />
+          <ScoreCard currentScore={currentScore} challengeId={challengeId} />
         </div>
       </div>
     </div>
@@ -237,17 +238,22 @@ function GeneratedImageCard({ generatedImageUrl }: { generatedImageUrl: string }
   return <div className="bg-white p-4 h-full w-full rounded-lg shadow-lg bg-cover bg-center" style={{ backgroundImage: `url(${generatedImageUrl})` }}></div>;
 }
 
-function ScoreCard({ currentScore }: { currentScore: number }) {
+function ScoreCard({ currentScore, challengeId }: { currentScore: number, challengeId: string }) {
   return (
-    <div className="bg-white p-4 w-full rounded-lg shadow-lg">
-      <p className="pt-2 pb-4">
+    <div className="bg-white p-4 w-full min-w-96 rounded-lg shadow-lg">
+      <p className="pt-2">
         スコアが
         <span className="mx-1 px-2 rounded text-white bg-red-500 font-bold">50</span>
         <span className="px-2 rounded text-white bg-orange-500 font-bold">75</span>
         <span className="mx-1 px-2 rounded text-white bg-green-500 font-bold">90</span>
-        を超えたときにAIが画像を作ってくれます！
+        を超えたときに<br/>AIが画像を作ってくれます！
       </p>
-      <CircularProgressBar maxValue={100} currentValue={currentScore} size={280} />
+      <div className="flex justify-center my-2">
+      <CircularProgressBar maxValue={100} currentValue={currentScore} size={230} />
+      </div>
+      <div className="">
+        <Link href={`/challenge-result/${challengeId}`} className="bg-blue-500 text-white block rounded-xl p-2 text-center">終了する（プレイ状況をリセットする）</Link>
+      </div>
     </div>
   );
 }
