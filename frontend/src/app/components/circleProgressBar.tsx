@@ -23,7 +23,7 @@ const CircularProgressBar = ({ maxValue, currentValue, size }: CircularProgressB
   };
 
   useEffect(() => {
-    let start = displayValue;
+    let start = progress;
     const end = (currentValue / maxValue) * 100;
     const duration = 1000;
     const stepTime = Math.abs(Math.floor(duration / Math.abs(end - start)));
@@ -42,7 +42,7 @@ const CircularProgressBar = ({ maxValue, currentValue, size }: CircularProgressB
     }, stepTime);
 
     return () => clearInterval(timer);
-  }, [currentValue, maxValue]); // あえて displayValue は含めない
+  }, [currentValue, maxValue, progress]);
 
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
