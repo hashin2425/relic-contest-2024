@@ -4,6 +4,7 @@ import React, { use, useState, useEffect } from "react";
 import CircularProgressBar from "@/app/components/circleProgressBar";
 import urlCreator from "@/lib/UrlCreator";
 import { useAuth } from "@/app/layout-client";
+import Link from "next/link";
 
 // app/challenge/[content_id]/page.tsx
 //urlの[content_id]を取得
@@ -201,12 +202,12 @@ function ScoreCard({
         />
       </div>
       <div className="">
-        <a
+        <Link
           href="/"
           className="bg-blue-500 text-white block rounded-xl p-2 text-center"
         >
           トップページに戻る
-        </a>
+        </Link>
       </div>
     </div>
   );
