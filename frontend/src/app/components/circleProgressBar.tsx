@@ -14,11 +14,17 @@ const CircularProgressBar = ({ maxValue, currentValue, size }: CircularProgressB
   const getProgressColor = (value: number) => {
     const percentage = (value / maxValue) * 100;
     if (percentage <= 50) {
+      // 0 ~ 50 : red
       return "rgb(239, 68, 68)";
     } else if (percentage <= 75) {
+      // 50 ~ 75 : yellow
       return "rgb(234, 179, 8)";
     } else if(percentage <= 90) {
+      // 75 ~ 90 : green
       return "rgb(34, 197, 94)";
+    } else if (percentage <= 100) {
+      // 90 ~ 100 : darkgreen
+      return "rgb(0, 128, 0)";
     }
   };
 
