@@ -42,7 +42,7 @@ const CircularProgressBar = ({ maxValue, currentValue, size }: CircularProgressB
     }, stepTime);
 
     return () => clearInterval(timer);
-  }, [currentValue, maxValue, progress]);
+  }, [currentValue, maxValue, progress, displayValue]);
 
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
