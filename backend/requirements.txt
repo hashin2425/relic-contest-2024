@@ -9,7 +9,7 @@ uvicorn==0.34.0
 
 # Database
 # pymongo==4.9.2
-motor==3.6.0
+motor==3.6.1
 
 # Generative AI
 groq==0.13.1
