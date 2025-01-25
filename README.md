@@ -47,7 +47,7 @@
 dockerコンテナーで起動しますが、それぞれのアプリコンテナーでホットリロードが有効な状態になるため、ローカル上でコードを変更すればそれも即座に反映されます。
 
 ```sh
-docker-compose -f .\docker-compose-dev.yml up -d
+docker-compose -f .\docker-compose-dev.yml up -d --build
 ```
 
 ### Python バックエンド
