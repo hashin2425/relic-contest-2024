@@ -1,6 +1,6 @@
 # Application
 bcrypt
-fastapi==0.115.6
+fastapi==0.115.7
 pydantic==2.10.4
 PyJWT==2.10.1
 python-multipart==0.0.20
