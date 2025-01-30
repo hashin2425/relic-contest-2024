@@ -6,7 +6,7 @@ import { useAuth } from "@/app/layout-client";
 
 export default function Home() {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       <HalfPanel h1="Challenges" h2="テーマを選んで、問題に取り組んでみよう！">
         <ChallengeCardList />
       </HalfPanel>
@@ -72,7 +72,7 @@ function ChallengeCardList() {
   }, []);
 
   return (
-    <div className="overflow-y-auto h-full hover-scroll p-8">
+    <div className="p-8">
       <div className="space-y-4">
         {cards.map((card) => (
           //カードを配置
