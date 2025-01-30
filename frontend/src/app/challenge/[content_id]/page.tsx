@@ -3,7 +3,7 @@
 import React, { use, useState, useEffect } from "react";
 import CircularProgressBar from "@/app/components/circleProgressBar";
 import urlCreator from "@/lib/UrlCreator";
-import { useAuth } from "@/app/layout-client";
+import { useAuthState } from "@/hooks/useAuthState";
 
 // app/challenge/[content_id]/page.tsx
 //urlの[content_id]を取得
@@ -25,7 +25,7 @@ export default function ContentPage({ params }: PageProps) {
   const [currentScore, setCurrentScore] = useState<number>(0);
   const [submissions, setSubmissions] = useState<SubmissionDisplayItems[]>([]);
   const [draftText, setDraftText] = useState<string>("");
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuthState();
 
   useEffect(() => {
     setTimeout(() => {
