@@ -23,7 +23,7 @@ from app.utils.challenge_utils import convert_challenge_to_json_item, submission
 
 load_dotenv()
 api_router = APIRouter()
-user_challenges = defaultdict(None)
+user_challenges = defaultdict(dict)
 SUBMIT_INTERVAL = 120  # 提出の間隔（秒）
 
 
@@ -42,14 +42,14 @@ async def start_challenge(request: ChallengeRequest, current_user: dict = Depend
         raise HTTPException(status_code=404, detail="Challenge not found.")
 
     if user_id not in user_challenges:
-        user_challenges[user_id] = UserChallenges(now_challenge_id=challenge_id, now_challenge=challenge)
+        user_challenges[user_id][challenge_id] = UserChallenges(now_challenge_id=challenge_id, now_challenge=challenge)
 
     logging("Challenge started: ", challenge_id, current_user)
     return {
         "message": "Start the challenge!",
-        "submissions": user_challenges[user_id].submissions,
-        "last_submitted_text": user_challenges[user_id].last_submitted_text,
-        "last_submission_score": user_challenges[user_id].last_submission_score,
+        "submissions": user_challenges[user_id][challenge_id].submissions,
+        "last_submitted_text": user_challenges[user_id][challenge_id].last_submitted_text,
+        "last_submission_score": user_challenges[user_id][challenge_id].last_submission_score,
     }
 
 
@@ -57,23 +57,24 @@ async def start_challenge(request: ChallengeRequest, current_user: dict = Depend
 @require_auth()
 async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(get_current_user)):
     submission = request.submission
-    challenge = user_challenges[current_user["sub"]].now_challenge
+    user_id = current_user["sub"]
+    challenge_id = request.challenge_id
+
+    challenge = user_challenges[user_id][challenge_id].now_challenge
     return_payload = {}
-    logging("Challenge submitted: ", request.submission, current_user["sub"], challenge)
+    logging("Challenge submitted: ", request.submission, user_id, challenge)
 
     # 提出の間隔をチェック
-    if user_challenges[current_user["sub"]].last_submitted_unix_time + SUBMIT_INTERVAL > get_jst_now().timestamp():
+    if user_challenges[user_id][challenge_id].last_submitted_unix_time + SUBMIT_INTERVAL > get_jst_now().timestamp():
         raise HTTPException(status_code=400, detail="Submission interval is too short.")
-    user_challenges[current_user["sub"]].last_submitted_unix_time = get_jst_now().timestamp()
+    user_challenges[user_id][challenge_id].last_submitted_unix_time = get_jst_now().timestamp()
 
     # 提出テキストのバリデーション
     if not submission_validation(submission):
         raise HTTPException(status_code=400, detail="Submission text is invalid.")
 
-    user_id = current_user["sub"]
-
     # groqによるチェック
-    score = user_challenges[user_id].last_submission_score
+    score = user_challenges[user_id][challenge_id].last_submission_score
     query_submission_to_score = f"""
     As an AI evaluator, analyze the English text within the <Submission> tags and assess how comprehensively it covers the content provided in the <Result> tags. Output only a single integer score from 0 to 100, where:
 
@@ -114,7 +115,7 @@ async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(
     except ValueError:
         pass
 
-    user_challenges[user_id].submissions.append(
+    user_challenges[user_id][challenge_id].submissions.append(
         {
             "timestamp": get_jst_now().strftime("%Y-%m-%dT %H:%M:%S"),
             "content": submission,
@@ -122,7 +123,7 @@ async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(
         }
     )
 
-    last_submission_score = user_challenges[user_id].last_submission_score
+    last_submission_score = user_challenges[user_id][challenge_id].last_submission_score
     new_submission_score = score
     if (last_submission_score < 50 <= new_submission_score) or (last_submission_score < 75 <= new_submission_score) or (last_submission_score < 90 <= new_submission_score):
         filename = "gen_" + hashlib.sha256(f"{user_id}_{get_jst_now().strftime('%Y%m%d%H%M%S')}".encode()).hexdigest()
@@ -131,21 +132,31 @@ async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(
         if USE_DALLE3:
             open_ai_client = DallE3Client()
             open_ai_client.generate(prompt, filename)
-            user_challenges[user_id].generated_image.append(filename)
+            user_challenges[user_id][challenge_id].generated_image.append(filename)
             return_payload["generated_img_url"] = "/api/img/" + filename
         else:
             _ = create_image_by_segmind(prompt, filename)
             return_payload["generated_img_url"] = "/api/img/" + filename
 
-    user_challenges[user_id].last_submitted_text = submission
-    user_challenges[user_id].last_submission_score = score
+    user_challenges[user_id][challenge_id].last_submitted_text = submission
+    user_challenges[user_id][challenge_id].last_submission_score = score
 
     return_payload["message"] = "Submission successful!"
-    return_payload["submissions"] = user_challenges[user_id].submissions
-    return_payload["last_submitted_text"] = user_challenges[user_id].last_submitted_text
-    return_payload["last_submission_score"] = user_challenges[user_id].last_submission_score
+    return_payload["submissions"] = user_challenges[user_id][challenge_id].submissions
+    return_payload["last_submitted_text"] = user_challenges[user_id][challenge_id].last_submitted_text
+    return_payload["last_submission_score"] = user_challenges[user_id][challenge_id].last_submission_score
     return return_payload
 
+@api_router.post("/end-challenge")
+@require_auth()
+async def end_challenge(request: ChallengeRequest, current_user: dict = Depends(get_current_user)):
+    user_id = current_user["sub"]
+    challenge_id = request.challenge_id
+
+    user_challenges[user_id].pop(challenge_id, None)
+    logging("Challenge ended: ", challenge_id, current_user)
+
+    return {"message": "End the challenge!"}
 
 #
 # @api_router.post("/chat")
