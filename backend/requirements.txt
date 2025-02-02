@@ -12,7 +12,7 @@ uvicorn==0.34.0
 motor==3.6.1
 
 # Generative AI
-groq==0.13.1
+groq==0.16.0
 openai==1.60.1
 
 # for Development
