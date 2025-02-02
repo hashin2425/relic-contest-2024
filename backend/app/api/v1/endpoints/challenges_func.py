@@ -1,18 +1,25 @@
-""" チャレンジに取り組んでいるユーザーに機能を提供するエンドポイント """
+""" Challenge endpoint module """
 
 import os
 import base64
 import json
 import hashlib
 from collections import defaultdict
+from typing import Dict, Any, Optional
 
-from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi_limiter.depends import RateLimiter
 import requests
+import asyncio
 
 from app.core.security import require_auth, get_current_user
 from app.core.mongodb_core import db
-from app.models.pydantic_models import ChallengeRequest, SubmitRequest, UserChallenges
+from app.models.pydantic_models import (
+    ChallengeRequest,
+    SubmitRequest,
+    UserChallenges,
+    UserSubmission
+)
 from app.services.groq_services import GroqClient
 from app.services.open_ai_services import ChatGPTClient, DallE3Client
 from app.services.segmind_services import create_image as create_image_by_segmind
@@ -21,60 +28,138 @@ from app.utils.log_utils import logging
 from app.utils.time_utils import get_jst_now
 from app.utils.challenge_utils import convert_challenge_to_json_item, submission_validation
 
-load_dotenv()
 api_router = APIRouter()
-user_challenges = defaultdict(None)
-SUBMIT_INTERVAL = 120  # 提出の間隔（秒）
+SUBMIT_INTERVAL = 120  # seconds between submissions
+RATE_LIMIT_TIMES = 30  # requests per minute
+RATE_LIMIT_SECONDS = 60
 
 
 @api_router.post("/start-challenge")
 @require_auth()
-async def start_challenge(request: ChallengeRequest, current_user: dict = Depends(get_current_user)):
-    """チャレンジを開始するためのエンドポイント"""
+async def start_challenge(
+    request: ChallengeRequest,
+    current_user: dict = Depends(get_current_user),
+    rate_limiter: None = Depends(RateLimiter(times=RATE_LIMIT_TIMES, seconds=RATE_LIMIT_SECONDS))
+):
+    """Start a challenge for a user"""
     user_id = current_user["sub"]
     challenge_id = request.challenge_id
 
+    # Get challenge data
     challenge_data = await db.get_challenge_by_id(challenge_id)
     challenge = convert_challenge_to_json_item(challenge_data)
 
-    if challenge is None or challenge is {}:
-        # チャレンジが存在しない場合
+    if not challenge:
         raise HTTPException(status_code=404, detail="Challenge not found.")
 
-    if user_id not in user_challenges:
-        user_challenges[user_id] = UserChallenges(now_challenge_id=challenge_id, now_challenge=challenge)
+    # Get or create user challenge data
+    user_challenge = await db.get_user_challenge(user_id, challenge_id)
+    if not user_challenge:
+        user_challenge = await db.create_user_challenge(
+            user_id=user_id,
+            challenge_id=challenge_id,
+            challenge=challenge
+        )
 
     logging("Challenge started: ", challenge_id, current_user)
     return {
-        "message": "Start the challenge!",
-        "submissions": user_challenges[user_id].submissions,
-        "last_submitted_text": user_challenges[user_id].last_submitted_text,
-        "last_submission_score": user_challenges[user_id].last_submission_score,
+        "message": "Challenge started successfully!",
+        "submissions": user_challenge.get("submissions", []),
+        "last_submitted_text": user_challenge.get("last_submitted_text", ""),
+        "last_submission_score": user_challenge.get("last_submission_score", 0),
     }
 
 
 @api_router.post("/submit")
 @require_auth()
-async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(get_current_user)):
+async def submit_challenge(
+    request: SubmitRequest,
+    current_user: dict = Depends(get_current_user),
+    rate_limiter: None = Depends(RateLimiter(times=RATE_LIMIT_TIMES, seconds=RATE_LIMIT_SECONDS))
+):
+    """Submit a challenge solution"""
+    user_id = current_user["sub"]
     submission = request.submission
-    challenge = user_challenges[current_user["sub"]].now_challenge
+    
+    # Get user's current challenge
+    user_challenge = await db.get_active_user_challenge(user_id)
+    if not user_challenge:
+        raise HTTPException(status_code=400, detail="No active challenge found.")
+        
+    challenge = user_challenge.get("challenge", {})
     return_payload = {}
-    logging("Challenge submitted: ", request.submission, current_user["sub"], challenge)
+    logging("Challenge submitted: ", submission, user_id, challenge)
 
-    # 提出の間隔をチェック
-    if user_challenges[current_user["sub"]].last_submitted_unix_time + SUBMIT_INTERVAL > get_jst_now().timestamp():
+    # Check submission interval
+    last_submit_time = user_challenge.get("last_submitted_unix_time", 0)
+    if last_submit_time + SUBMIT_INTERVAL > get_jst_now().timestamp():
         raise HTTPException(status_code=400, detail="Submission interval is too short.")
-    user_challenges[current_user["sub"]].last_submitted_unix_time = get_jst_now().timestamp()
 
-    # 提出テキストのバリデーション
+    # Validate submission text
     if not submission_validation(submission):
         raise HTTPException(status_code=400, detail="Submission text is invalid.")
 
-    user_id = current_user["sub"]
+    # Evaluate submission
+    score = await evaluate_submission(submission, challenge.get("result_sample", ""))
 
-    # groqによるチェック
-    score = user_challenges[user_id].last_submission_score
-    query_submission_to_score = f"""
+    # Create submission record
+    submission_record = UserSubmission(
+        timestamp=get_jst_now().strftime("%Y-%m-%dT %H:%M:%S"),
+        content=submission,
+        score=score
+    )
+
+    # Generate image if score threshold reached
+    last_score = user_challenge.get("last_submission_score", 0)
+    if (last_score < 50 <= score) or (last_score < 75 <= score) or (last_score < 90 <= score):
+        try:
+            result = await generate_submission_image(user_id, submission)
+            if result.get("url"):
+                return_payload["generated_img_url"] = result["url"]
+        except Exception as e:
+            logging(f"Error generating image: {e}")
+
+    # Update user challenge data
+    try:
+        await db.update_user_challenge(
+            user_id=user_id,
+            challenge_id=user_challenge["challenge_id"],
+            submission=submission_record.dict(),  # Convert to dict for MongoDB
+            last_score=score,
+            last_submission=submission
+        )
+    except Exception as e:
+        logging(f"Error updating challenge: {e}")
+        # Continue even if update fails
+        pass
+
+    # Get updated challenge data
+    try:
+        updated_challenge = await db.get_active_user_challenge(user_id)
+        if updated_challenge:
+            return {
+                "message": "Submission successful!",
+                "submissions": updated_challenge.get("submissions", []),
+                "last_submitted_text": updated_challenge.get("last_submitted_text", ""),
+                "last_submission_score": updated_challenge.get("last_submission_score", 0),
+                **return_payload
+            }
+    except Exception as e:
+        logging(f"Error getting updated challenge: {e}")
+
+    # Fallback response if getting updated data fails
+    return {
+        "message": "Submission successful!",
+        "submissions": [],
+        "last_submitted_text": submission,
+        "last_submission_score": score,
+        **return_payload
+    }
+
+
+async def evaluate_submission(submission: str, result_sample: str) -> int:
+    """Evaluate submission using AI"""
+    query = f"""
     As an AI evaluator, analyze the English text within the <Submission> tags and assess how comprehensively it covers the content provided in the <Result> tags. Output only a single integer score from 0 to 100, where:
 
     - 100 indicates the submission fully covers all key points and details from the result
@@ -86,156 +171,77 @@ async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(
     Do not provide any explanation or additional text - output only the integer score.
 
     <Result>
-    {challenge.get("result_sample", "")}
+    {result_sample}
     </Result>
 
     <Submission>
     {submission}
     </Submission>
     """
-    IS_USE_GROQ = False  # いったんFalseにしておく
-    if IS_USE_GROQ:
-        groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
-        response = groq_client.chat(
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": query_submission_to_score},
-                    ],
-                }
-            ]
-        )
-    else:
-        open_ai_client = ChatGPTClient()
-        response = open_ai_client.chat(query_submission_to_score)
+    
     try:
-        score = int(response)
-    except ValueError:
-        pass
+        IS_USE_GROQ = False
+        chat_response = ""
+        
+        if IS_USE_GROQ:
+            try:
+                groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
+                chat_response = await groq_client.chat(
+                    messages=[{"role": "user", "content": query}]
+                )
+            except ImportError:
+                logging("Groq not available, falling back to ChatGPT")
+                IS_USE_GROQ = False
+        
+        if not IS_USE_GROQ:
+            open_ai_client = ChatGPTClient()
+            chat_response = await open_ai_client.chat(query)
 
-    user_challenges[user_id].submissions.append(
-        {
-            "timestamp": get_jst_now().strftime("%Y-%m-%dT %H:%M:%S"),
-            "content": submission,
-            "score": score,
-        }
-    )
+        try:
+            # Remove any non-numeric characters
+            score_str = ''.join(c for c in chat_response if c.isdigit())
+            score = int(score_str) if score_str else 0
+            return max(0, min(100, score))  # Ensure score is between 0 and 100
+        except (ValueError, TypeError):
+            logging(f"Error converting response to int: {chat_response}")
+            return 0
+    except Exception as e:
+        logging(f"Error evaluating submission: {e}")
+        return 0
 
-    last_submission_score = user_challenges[user_id].last_submission_score
-    new_submission_score = score
-    if (last_submission_score < 50 <= new_submission_score) or (last_submission_score < 75 <= new_submission_score) or (last_submission_score < 90 <= new_submission_score):
-        filename = "gen_" + hashlib.sha256(f"{user_id}_{get_jst_now().strftime('%Y%m%d%H%M%S')}".encode()).hexdigest()
+
+def generate_filename(user_id: str) -> str:
+    """Generate unique filename for submission image"""
+    timestamp = get_jst_now().strftime('%Y%m%d%H%M%S')
+    return f"gen_{hashlib.sha256(f'{user_id}_{timestamp}'.encode()).hexdigest()}"
+
+
+async def _attempt_image_generation(prompt: str, filename: str, use_dalle: bool = True) -> bool:
+    """Attempt to generate image using specified service"""
+    try:
+        if use_dalle:
+            client = DallE3Client()
+            return await client.generate(prompt, filename)
+        return await create_image_by_segmind(prompt, filename)
+    except Exception as e:
+        logging(f"Error in image generation attempt: {e}")
+        return False
+
+
+async def generate_submission_image(user_id: str, submission: str) -> Dict[str, str]:
+    """Generate image for submission"""
+    try:
+        filename = generate_filename(user_id)
         prompt = f"Create an image that represents the following text: {submission}"
+        
+        # Try DALL-E 3 first, fallback to Segmind if needed
         USE_DALLE3 = True
-        if USE_DALLE3:
-            open_ai_client = DallE3Client()
-            open_ai_client.generate(prompt, filename)
-            user_challenges[user_id].generated_image.append(filename)
-            return_payload["generated_img_url"] = "/api/img/" + filename
-        else:
-            _ = create_image_by_segmind(prompt, filename)
-            return_payload["generated_img_url"] = "/api/img/" + filename
-
-    user_challenges[user_id].last_submitted_text = submission
-    user_challenges[user_id].last_submission_score = score
-
-    return_payload["message"] = "Submission successful!"
-    return_payload["submissions"] = user_challenges[user_id].submissions
-    return_payload["last_submitted_text"] = user_challenges[user_id].last_submitted_text
-    return_payload["last_submission_score"] = user_challenges[user_id].last_submission_score
-    return return_payload
-
-
-#
-# @api_router.post("/chat")
-# @require_auth()
-# async def return_message_from_chat(request: MessagesRequest):
-#    """チャットリクエストをGroqクライアントに送信し、応答を返す"""
-#    groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
-#    messages_dict = [message.dict() for message in request.messages]
-#    response = groq_client.chat(messages=messages_dict)
-#    return {"response": response}
-#
-#
-# @api_router.post("/analyze-image")
-# @require_auth()
-# async def analyze_image(file: UploadFile):
-#    """画像がJPEGまたはPNG形式であることを確認"""
-#    groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
-#    if file.content_type not in ["image/jpeg", "image/png"]:
-#        raise HTTPException(status_code=400, detail="Only JPEG or PNG images are supported.")
-#
-#    # 画像をBase64形式にエンコード
-#    base64_image = encode_image(file)
-#    messages = [
-#        {
-#            "role": "user",
-#            "content": [
-#                {"type": "text", "text": "この画像は何を表していますか？"},
-#                {
-#                    "type": "image_url",
-#                    "image_url": {
-#                        "url": f"data:image/jpeg;base64,{base64_image}",
-#                    },
-#                },
-#            ],
-#        },
-#    ]
-#    # Groqに画像を渡して、説明を取得
-#    description = groq_client.chat(messages)
-#    return {"description": description}
-#
-#
-# @api_router.post("/analyze-base64image")
-# @require_auth()
-# async def analyze_base64image(base64_image: str):
-#    """Base64エンコードされた画像をGroqに渡して説明を取得"""
-#    groq_client = GroqClient(api_key=os.getenv("GROQ_API_KEY", ""))
-#    messages = [
-#        {
-#            "role": "user",
-#            "content": [
-#                {"type": "text", "text": "この画像は何を表していますか？"},
-#                {
-#                    "type": "image_url",
-#                    "image_url": {
-#                        "url": f"data:image/jpeg;base64,{base64_image}",
-#                    },
-#                },
-#            ],
-#        },
-#    ]
-#    description = groq_client.chat(messages)
-#    return {"description": description}
-#
-#
-# @api_router.post("/create-image")
-# @require_auth()
-# async def create_image(prompt: str):
-#    """画像生成のためのAPIキーとURL"""
-#    api_key = os.getenv("SEGMIND_KEY")
-#    url = "https://api.segmind.com/v1/sdxl1.0-newreality-lightning"
-#    payload = {
-#        "prompt": prompt,  # 画像生成のプロンプト
-#        "negative_prompt": "((close up)),(octane render, render, drawing, bad photo, bad photography:1.3)",  # ネガティブプロンプト
-#        "samples": 1,  # 生成する画像の数
-#        "scheduler": "DPM++ SDE",  # スケジューラー設定
-#        "num_inference_steps": 7,  # 推論ステップ数
-#        "guidance_scale": 1,  # ガイダンススケール
-#        "seed": 1220429729,  # ランダムシード
-#        "img_width": 1024,  # 画像の幅
-#        "img_height": 1024,  # 画像の高さ
-#        "base64": False,  # Base64で返すかどうか
-#    }
-#
-#    headers = {"x-api-key": api_key}
-#    response = requests.post(url, json=payload, headers=headers, timeout=30)
-#    if response.ok:
-#        # 生成された画像をBase64エンコードして返す
-#        base64_image = base64.b64encode(response.content).decode("utf-8")
-#        return {"base64image": base64_image}
-#
-#    # エラーが発生した場合
-#    return {"error": "Image generation failed", "status_code": response.status_code}
-#
+        success = await _attempt_image_generation(prompt, filename, use_dalle=USE_DALLE3)
+        
+        if success:
+            return {"url": f"/api/img/{filename}"}
+        return {"url": ""}
+            
+    except Exception as e:
+        logging(f"Error in generate_submission_image: {e}")
+        return {"url": ""}

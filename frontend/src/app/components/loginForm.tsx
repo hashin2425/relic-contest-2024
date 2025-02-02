@@ -1,11 +1,12 @@
-import urlCreator from "@/lib/UrlCreator";
 import { useState } from "react";
+import { useAuthState } from "@/hooks/useAuthState";
 
 export default function LoginForm({ onClose }: { onClose: () => void }) {
-  const [username, setUsername] = useState("");
+  const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { login } = useAuthState();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -13,25 +14,7 @@ export default function LoginForm({ onClose }: { onClose: () => void }) {
     setError("");
 
     try {
-      const response = await fetch(urlCreator("/api/auth/login"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: username, password: password }),
-      });
-
-      if (!response.ok) {
-        throw new Error("ログインに失敗しました");
-      }
-
-      const data = await response.json();
-
-      // ログイン成功時の処理
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("username", username);
-      onClose();
-      window.location.reload();
+      await login({ id, password });
     } catch (err) {
       setError(err instanceof Error ? err.message : "エラーが発生しました");
     } finally {
@@ -47,7 +30,7 @@ export default function LoginForm({ onClose }: { onClose: () => void }) {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700">ユーザー名</label>
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full px-3 py-2 border rounded" required autoComplete="username" />
+            <input type="text" value={id} onChange={(e) => setId(e.target.value)} className="w-full px-3 py-2 border rounded" required autoComplete="username" />
           </div>
           <div className="mb-4">
             <label className="block text-gray-700">パスワード</label>

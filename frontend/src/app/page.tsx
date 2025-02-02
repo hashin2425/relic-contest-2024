@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import urlCreator from "@/lib/UrlCreator";
-import { useAuth } from "@/app/layout-client";
+import { useAuthState } from "@/hooks/useAuthState";
 
 export default function Home() {
   return (
@@ -84,7 +84,7 @@ function ChallengeCardList() {
 }
 
 function ChallengeCard({ id, title, description, imgUrl }: { id: number; title: string; description?: string; imgUrl: string }) {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuthState();
 
   return (
     <div className="group relative block h-48 overflow-hidden rounded-md shadow-lg shadow-gray-500/50">
