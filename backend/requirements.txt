@@ -9,14 +9,14 @@ uvicorn==0.34.0
 
 # Database
 # pymongo==4.9.2
-motor==3.6.0
+motor==3.6.1
 
 # Generative AI
 groq==0.13.1
-openai==1.59.7
+openai==1.60.1
 
 # for Development
 python-dotenv==1.0.1
 
 # Others
-tzdata==2024.2
+tzdata==2025.1

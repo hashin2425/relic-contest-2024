@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export default function Header({ isLoggedIn, onLoginClick, handleLogout }: HeaderProps) {
   return (
-    <div className="bg-orange-400 py-2 flex items-center justify-between px-4">
+    <header className="bg-orange-400 py-2 flex items-center justify-between px-4">
       <Link href="/">
         <h1 className="text-2xl font-bold text-white">PictoWrite - 英語学習アプリ</h1>
       </Link>
@@ -31,6 +31,6 @@ export default function Header({ isLoggedIn, onLoginClick, handleLogout }: Heade
           </button>
         )}
       </div>
-    </div>
+    </header>
   );
 }
