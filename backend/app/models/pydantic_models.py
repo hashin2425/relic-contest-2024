@@ -1,43 +1,56 @@
-""" Pydanticモデルを定義するモジュール """
+""" Pydantic models definition module """
 
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 
 from pydantic import BaseModel
 
 
 class Message(BaseModel):
-    """Pydanticモデル（入力のバリデーション用）"""
-
-    role: str  # メッセージの役割（userやsystemなど）
-    content: str  # メッセージの内容
+    """Message model for AI communication"""
+    role: str
+    content: str
 
 
 class MessagesRequest(BaseModel):
-    """Pydanticモデル（入力のバリデーション用）"""
-
-    messages: List[Message]  # メッセージのリスト
+    """Messages request model"""
+    messages: List[Message]
 
 
 class ChallengeRequest(BaseModel):
-    """チャレンジを開始するためのリクエスト"""
-
+    """Challenge start request"""
     challenge_id: str
 
 
 class SubmitRequest(BaseModel):
-    """チャレンジの提出リクエスト"""
-
+    """Challenge submission request"""
     submission: str
 
 
-class UserChallenges:
-    """ユーザーが取り組んでいるチャレンジを管理するクラス"""
+class UserSubmission(BaseModel):
+    """Challenge submission record"""
+    timestamp: str
+    content: str
+    score: int
 
-    def __init__(self, now_challenge_id: str, now_challenge: dict):
-        self.now_challenge_id = now_challenge_id
-        self.now_challenge = now_challenge
-        self.submissions = []  # [{"timestamp": "2021-09-01T00:00:00", "content": "Hello, World!", "score": 100}, ...]
-        self.last_submitted_unix_time = 0
-        self.last_submitted_text = ""
-        self.last_submission_score = 0
-        self.generated_image = []  # [{"timestamp": "2021-09-01T00:00:00", "base64": "base64image"}, ...]
+
+class UserChallenge(BaseModel):
+    """User's active challenge"""
+    challenge_id: str
+    challenge: dict
+    submissions: List[UserSubmission] = []
+    last_submitted_text: str = ""
+    last_submitted_unix_time: float = 0
+    last_submission_score: int = 0
+    generated_images: List[str] = []
+    started_at: datetime
+    updated_at: datetime
+
+
+class UserChallenges(BaseModel):
+    """User's challenge history"""
+    user_id: str
+    active_challenge: Optional[UserChallenge] = None
+    completed_challenges: List[str] = []
+    created_at: datetime
+    updated_at: datetime
