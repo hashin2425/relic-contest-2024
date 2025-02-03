@@ -13,7 +13,7 @@ motor==3.7.0
 
 # Generative AI
 groq==0.16.0
-openai==1.60.1
+openai==1.61.0
 
 # for Development
 python-dotenv==1.0.1
