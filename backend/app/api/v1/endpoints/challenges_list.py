@@ -1,4 +1,4 @@
-""" チャレンジに関するエンドポイントを記述するモジュール """
+"""チャレンジに関するエンドポイントを記述するモジュール"""
 
 from fastapi import APIRouter
 from app.core.mongodb_core import db
@@ -7,6 +7,7 @@ from app.utils.log_utils import logging
 from app.utils.challenge_utils import convert_challenge_to_json_item
 
 api_router = APIRouter()
+
 
 @api_router.get("/get-all")
 async def get_challenges():

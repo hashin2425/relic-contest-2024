@@ -5,10 +5,10 @@
     "image_path": "/api/img/ch_2d6fe5d1bfe170c5f5113afbe21d39cfe181ac9e12cadb2b7ee98a7d7592d111",
     "image_hash": "2d6fe5d1bfe170c5f5113afbe21d39cfe181ac9e12cadb2b7ee98a7d7592d111",
     "result_sample": "The image depicts a tranquil scene featuring a deer resting on the ground in the foreground, next to a blue wooden bench. Behind the deer, a large red torii gate, a traditional Japanese gate associated with Shinto shrines, dominates the background. The torii gate is positioned near the water, suggesting this is the iconic floating torii gate of Itsukushima Shrine. A stone lantern stands to the left of the scene, adding to the traditional atmosphere. The cloudy sky and distant mountains in the background enhance the serene and slightly overcast mood of the setting.",
-    "result_sample_image_paths" : [
+    "result_sample_image_paths": [
       "/api/img/ch_f011aa5b7e209c2566cfcc49143b1ab713016351f0727938cbf93f7e155f5126",
       "/api/img/ch_da9bdc4f02a2bfeb8ec832350944feb1e22f2d89052b4a4abec557d6f9615d64",
-      "/api/img/ch_f7fe9b8f06b74dac8c079edac2ff1f9de246e9ee785f301d15b0174e6905d389",
+      "/api/img/ch_f7fe9b8f06b74dac8c079edac2ff1f9de246e9ee785f301d15b0174e6905d389"
     ]
   },
   {
@@ -17,10 +17,10 @@
     "image_path": "/api/img/ch_0cb334e8a405767c916a0bfb5f7c3b13d87dcf5e174bc704bb788589c572cca0",
     "image_hash": "0cb334e8a405767c916a0bfb5f7c3b13d87dcf5e174bc704bb788589c572cca0",
     "result_sample": "The image shows a bustling urban street intersection on a wet, overcast day, with a zebra crossing and red markings visible on the wet road. Several vehicles, including small white vans and cars, are moving through the intersection, while a person on a bicycle is crossing. Surrounding the street are commercial buildings with storefronts and bright advertisements, including a sign for Matsumoto Kiyoshi, a well-known Japanese pharmacy chain. Trees with yellow and green foliage line the street, suggesting an autumn setting, while pedestrians walk along the sidewalks. In the background, modern high-rise buildings with glass facades and colorful billboards add to the vibrant cityscape.",
-    "result_sample_image_paths" : [
+    "result_sample_image_paths": [
       "/api/img/ch_d5daf506eb14f322cfded1066e2d0a7926009705eb98708912e66e9347610041",
       "/api/img/ch_34d45e9c790bc6914181252c00ad3427309769cd3f91ccc9f19289f342ad15f0",
-      "/api/img/ch_5daba912907218e2fe8a812cfc42d8ba0ec694092d33b62faa130866966ec964",
+      "/api/img/ch_5daba912907218e2fe8a812cfc42d8ba0ec694092d33b62faa130866966ec964"
     ]
   },
   {
@@ -29,10 +29,10 @@
     "image_path": "/api/img/ch_6d1cf5f17f8bf73e943bb7a5b8a3dbd1165eb976b1c25d4254b8313ec33655cd",
     "image_hash": "6d1cf5f17f8bf73e943bb7a5b8a3dbd1165eb976b1c25d4254b8313ec33655cd",
     "result_sample": "The image shows a serene rural landscape during spring, with cherry blossom branches in full bloom framing the foreground. In the background, colorful carp streamers, known as koinobori, are strung across the sky, fluttering gently in the breeze. Below the streamers, rolling fields and trees, some of which are also blooming with cherry blossoms, extend toward a line of forested hills. The bright blue sky, dotted with soft white clouds, enhances the tranquil and festive atmosphere of the scene.",
-    "result_sample_image_paths" : [
+    "result_sample_image_paths": [
       "/api/img/ch_5d7fe1bfc99b70e3b2495f655588635b55f7bf94fbf12912db40185d1eed7258",
       "/api/img/ch_a729f92885f0b4043078adc6ec069bfc170c3c9b9d0e21b72ef7c201310708b5",
-      "/api/img/ch_4d9548e3e83fd20cd4babf27171f4150505cbe3e7e89720a85f7b38acfb8a450",
+      "/api/img/ch_4d9548e3e83fd20cd4babf27171f4150505cbe3e7e89720a85f7b38acfb8a450"
     ]
   }
 ]

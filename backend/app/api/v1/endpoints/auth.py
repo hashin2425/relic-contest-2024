@@ -1,4 +1,4 @@
-""" FastAPI による認証関連のエンドポイントを定義するモジュール """
+"""FastAPI による認証関連のエンドポイントを定義するモジュール"""
 
 import os
 from typing import Any
