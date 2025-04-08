@@ -1,4 +1,4 @@
-""" チャレンジに取り組んでいるユーザーに機能を提供するエンドポイント """
+"""チャレンジに取り組んでいるユーザーに機能を提供するエンドポイント"""
 
 import os
 import base64
@@ -25,6 +25,7 @@ load_dotenv()
 api_router = APIRouter()
 user_challenges = defaultdict(None)
 SUBMIT_INTERVAL = 120  # 提出の間隔（秒）
+SCORE_MAGNIFICATION_TRIAL = 400  # 体験版のスコア倍率
 
 
 @api_router.post("/start-challenge")
@@ -144,6 +145,41 @@ async def submit_challenge(request: SubmitRequest, current_user: dict = Depends(
     return_payload["submissions"] = user_challenges[user_id].submissions
     return_payload["last_submitted_text"] = user_challenges[user_id].last_submitted_text
     return_payload["last_submission_score"] = user_challenges[user_id].last_submission_score
+    return return_payload
+
+
+@api_router.post("/submit-for-trial")
+async def submit_challenge_for_trial(request: SubmitRequest):
+    submission = request.submission
+    challenge_id = request.challenge_id
+    challenge_data = await db.get_challenge_by_id(challenge_id)
+    challenge = convert_challenge_to_json_item(challenge_data)
+    return_payload = {}
+
+    # 提出テキストのバリデーション
+    if not submission_validation(submission):
+        raise HTTPException(status_code=400, detail="Submission text is invalid.")
+
+    # 体験版のため、簡易的なスコア算出を行う
+    score = 0
+    word_list_submission = set([word.lower() for word in submission.split()])
+    word_list_result = set([word.lower() for word in challenge.get("result_sample", "").split()])
+    common_words = word_list_submission.intersection(word_list_result)
+    score = int(len(common_words) / len(word_list_result) * SCORE_MAGNIFICATION_TRIAL) if word_list_result else 0
+    score = min(max(score, 0), 100)
+
+    print(word_list_result, word_list_submission, common_words, score)
+
+    return_payload["message"] = "Submission successful!"
+    return_payload["submissions"] = [
+        {
+            "timestamp": get_jst_now().strftime("%Y-%m-%dT %H:%M:%S"),
+            "content": submission,
+            "score": score,
+        }
+    ]
+    return_payload["last_submitted_text"] = score
+    return_payload["last_submission_score"] = score
     return return_payload
 
 

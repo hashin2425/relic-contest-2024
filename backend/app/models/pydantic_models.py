@@ -28,6 +28,7 @@ class SubmitRequest(BaseModel):
     """チャレンジの提出リクエスト"""
 
     submission: str
+    challenge_id: str
 
 
 class UserChallenges:

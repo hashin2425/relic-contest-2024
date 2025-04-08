@@ -18,7 +18,7 @@ type SubmissionDisplayItems = {
 };
 
 export default function ContentPage({ params }: PageProps) {
-  const { content_id: id } = use(params);
+  const { content_id: challengeId } = use(params);
   const [isVisibleNotLoggedInMessage, setIsVisibleNotLoggedInMessage] = useState<boolean>(false);
   const [challengeImageUrl, setChallengeImageUrl] = useState<string>("");
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
@@ -33,19 +33,19 @@ export default function ContentPage({ params }: PageProps) {
     }, 1000);
   });
 
+  // 問題のデータを取得
+  fetch(urlCreator("/api/challenges-list/get/" + challengeId))
+    .then((response) => response.json())
+    .then((data) => {
+      const imgUrl = data.problem.imgUrl;
+      setChallengeImageUrl(urlCreator(imgUrl));
+    })
+    .catch((error) => console.error("Error:", error));
+
   useEffect(() => {
     if (!isLoggedIn) {
       return;
     }
-
-    // 問題のデータを取得
-    fetch(urlCreator("/api/challenges-list/get/" + id))
-      .then((response) => response.json())
-      .then((data) => {
-        const imgUrl = data.problem.imgUrl;
-        setChallengeImageUrl(urlCreator(imgUrl));
-      })
-      .catch((error) => console.error("Error:", error));
 
     // プレイ開始を通知
     fetch(urlCreator("/api/challenges-func/start-challenge"), {
@@ -54,7 +54,7 @@ export default function ContentPage({ params }: PageProps) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({ challenge_id: id }),
+      body: JSON.stringify({ challenge_id: challengeId }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -73,16 +73,20 @@ export default function ContentPage({ params }: PageProps) {
         }
       })
       .catch((error) => console.error("Error:", error));
-  }, [id, isLoggedIn]);
+  }, [challengeId, isLoggedIn]);
 
   function handleSubmit() {
-    fetch(urlCreator("/api/challenges-func/submit"), {
+    let submissionUrl = urlCreator("/api/challenges-func/submit");
+    if (!isLoggedIn) {
+      submissionUrl = urlCreator("/api/challenges-func/submit-for-trial");
+    }
+    fetch(submissionUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({ submission: draftText }),
+      body: JSON.stringify({ submission: draftText, challenge_id: challengeId }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -104,21 +108,21 @@ export default function ContentPage({ params }: PageProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen mx-4">
       {isLoggedIn === false && isVisibleNotLoggedInMessage === true ? (
         <>
-          <div className="bg-red-500 text-white p-4 m-4 rounded shadow-lg">プレイにはログインが必要です</div>
+          <div className="bg-blue-500 text-white p-4 mb-4 rounded shadow-lg">【体験版プレイ中】ログインしていないため、機能が制限されます。</div>
         </>
       ) : (
         <></>
       )}
-      <div className="flex flex-1">
+      <div className="flex flex-1 mb-4">
         {/* 上段部 */}
-        <div className="flex-1 p-4">
+        <div className="flex-1 mr-4">
           {/* 左 */}
           <ChallengeImageCard imageUrl={challengeImageUrl} />
         </div>
-        <div className="flex-1 p-4">
+        <div className="flex-1">
           {/* 右 */}
           <GeneratedImageCard generatedImageUrl={generatedImageUrl} />
         </div>
@@ -126,11 +130,11 @@ export default function ContentPage({ params }: PageProps) {
 
       <div className="flex flex-1">
         {/* 上段部 */}
-        <div className="flex-[7] p-4">
+        <div className="flex-[7] mr-4">
           {/* 左 */}
           <TextAreaCard submissions={submissions} draftText={draftText} setDraftText={setDraftText} handleSubmit={handleSubmit} />
         </div>
-        <div className="flex-[3] p-4">
+        <div className="flex-[3]">
           {/* 右 */}
           <ScoreCard currentScore={currentScore} />
         </div>
@@ -175,7 +179,7 @@ const TextAreaCard = ({ submissions, draftText, setDraftText, handleSubmit }: { 
     }
 
     // Check for invalid characters
-    const validCharPattern = /^[a-zA-Z0-9., 　]+$/;
+    const validCharPattern = /^[a-zA-Z0-9., 　\n]+$/;
     if (!validCharPattern.test(text)) {
       setErrorMessage("使用できない文字が含まれています！（英数字、ピリオド、カンマのみ使用可能）");
       return false;
@@ -208,21 +212,23 @@ const TextAreaCard = ({ submissions, draftText, setDraftText, handleSubmit }: { 
       <div className="flex-[1] bg-gray-200 p-2">
         <form className="flex flex-col space-y-2 mx-1" onSubmit={handleSubmitWithoutReload}>
           <div className="flex items-center space-x-1">
-            <input
-              type="text"
+            <textarea
               value={draftText || ""}
               onChange={(e) => {
                 setDraftText(e.target.value);
                 validateSubmission(e.target.value);
               }}
               placeholder="英語で説明してみよう！"
-              className="p-2 flex-1 border border-gray-300 rounded-l-xl"
+              className="p-4 flex-1 border border-gray-300 rounded-xl resize-none min-h-20 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={2}
             />
-            <button type="submit" className={`p-2 text-white rounded-r-xl transition-colors ${coolDownRemaining > 0 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`} disabled={coolDownRemaining > 0}>
+          </div>
+          <div className="flex">
+            <button type="submit" className={`p-2 w-64 text-white rounded-xl transition-colors ${coolDownRemaining > 0 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"}`} disabled={coolDownRemaining > 0}>
               {coolDownRemaining > 0 ? `${coolDownRemaining}秒待機中...` : "とりあえず提出してみる"}
             </button>
+            {errorMessage && <div className="text-red-500 text-sm font-bold px-2">{errorMessage}</div>}
           </div>
-          {errorMessage && <div className="text-red-500 text-sm font-bold px-2">{errorMessage}</div>}
         </form>
       </div>
     </div>
