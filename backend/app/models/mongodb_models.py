@@ -13,6 +13,7 @@ class Challenge(BaseModel):
     image_path: str
     image_hash: str
     result_sample: str
+    result_sample_image_paths: list[str]
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = None
 

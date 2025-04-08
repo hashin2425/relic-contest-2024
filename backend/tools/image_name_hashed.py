@@ -17,6 +17,8 @@ directory = "app/data/images"
 
 for filename in os.listdir(directory):
     if filename.endswith(".png") or filename.endswith(".jpeg") or filename.endswith(".jpg"):
+        if filename.startswith("ch_") or filename.startswith("gen_"):
+            continue
         file_path = os.path.join(directory, filename)
         try:
             with open(file_path, "rb") as image_file:

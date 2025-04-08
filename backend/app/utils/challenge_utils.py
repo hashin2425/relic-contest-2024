@@ -12,6 +12,7 @@ def convert_challenge_to_json_item(challenge) -> dict:
         "imgUrl": challenge.image_path,
         "description": "",  # 未対応
         "result_sample": challenge.result_sample,
+        "result_sample_image_paths": challenge.result_sample_image_paths,
     }
 
 

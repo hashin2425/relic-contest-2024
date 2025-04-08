@@ -25,7 +25,7 @@ load_dotenv()
 api_router = APIRouter()
 user_challenges = defaultdict(None)
 SUBMIT_INTERVAL = 120  # 提出の間隔（秒）
-SCORE_MAGNIFICATION_TRIAL = 400  # 体験版のスコア倍率
+SCORE_MAGNIFICATION_TRIAL = 300  # 体験版のスコア倍率
 
 
 @api_router.post("/start-challenge")
@@ -168,7 +168,12 @@ async def submit_challenge_for_trial(request: SubmitRequest):
     score = int(len(common_words) / len(word_list_result) * SCORE_MAGNIFICATION_TRIAL) if word_list_result else 0
     score = min(max(score, 0), 100)
 
-    print(word_list_result, word_list_submission, common_words, score)
+    if 50 <= score < 75:
+        return_payload["generated_img_url"] = challenge["result_sample_image_paths"][0]
+    elif 75 <= score < 90:
+        return_payload["generated_img_url"] = challenge["result_sample_image_paths"][1]
+    elif score >= 90:
+        return_payload["generated_img_url"] = challenge["result_sample_image_paths"][2]
 
     return_payload["message"] = "Submission successful!"
     return_payload["submissions"] = [
