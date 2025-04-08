@@ -5,7 +5,7 @@
 [![Python Tests](https://github.com/hashin2425/relic-contest-2024/actions/workflows/unittest.yml/badge.svg?branch=main)](https://github.com/hashin2425/relic-contest-2024/actions/workflows/unittest.yml)
 [![Dependabot](https://github.com/hashin2425/relic-contest-2024/actions/workflows/dependabot/dependabot-updates/badge.svg?branch=main)](https://github.com/hashin2425/relic-contest-2024/actions/workflows/dependabot/dependabot-updates)
 
-（説明をここに書く）
+英語学習Webアプリ「PictoWrite」は、画像生成AIを用いて英作文のスキルを伸ばすものです。
 
 ## チャレンジ（問題）の追加方法
 
