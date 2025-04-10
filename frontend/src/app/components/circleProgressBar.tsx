@@ -19,7 +19,7 @@ const CircularProgressBar = ({ maxValue, currentValue, size }: CircularProgressB
     } else if (percentage <= 75) {
       // 50 ~ 75 : yellow
       return "rgb(234, 179, 8)";
-    } else if(percentage <= 90) {
+    } else if (percentage <= 90) {
       // 75 ~ 90 : green
       return "rgb(34, 197, 94)";
     } else if (percentage <= 100) {
@@ -30,7 +30,7 @@ const CircularProgressBar = ({ maxValue, currentValue, size }: CircularProgressB
 
   useEffect(() => {
     let start = displayValue;
-    const end = (currentValue / maxValue) * 100;
+    const end = (Math.floor(currentValue) / maxValue) * 100;
     const duration = 1000;
     const stepTime = Math.abs(Math.floor(duration / Math.abs(end - start)));
 
@@ -54,7 +54,7 @@ const CircularProgressBar = ({ maxValue, currentValue, size }: CircularProgressB
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;
 
-  const textColor = getProgressColor(currentValue);
+  const textColor = getProgressColor(Math.floor(currentValue));
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
@@ -64,7 +64,7 @@ const CircularProgressBar = ({ maxValue, currentValue, size }: CircularProgressB
           cx="60"
           cy="60"
           r={radius}
-          stroke={getProgressColor(currentValue)}
+          stroke={getProgressColor(Math.floor(currentValue))}
           strokeWidth="10"
           fill="transparent"
           strokeDasharray={circumference}
