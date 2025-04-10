@@ -93,7 +93,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <AuthContext.Provider value={authContextValue}>
       <Header isLoggedIn={isLoggedIn} onLoginClick={handleLoginClick} handleLogout={handleLogout} />
-      <main>{children}</main>
+      <main className="w-screen h-screen pt-16 pb-4">{children}</main>
       {isLoginFormVisible && <LoginForm onClose={handleCloseLogin} />}
     </AuthContext.Provider>
   );

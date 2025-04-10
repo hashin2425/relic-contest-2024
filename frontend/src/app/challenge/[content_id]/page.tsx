@@ -20,6 +20,7 @@ type SubmissionDisplayItems = {
 export default function ContentPage({ params }: PageProps) {
   const { content_id: challengeId } = use(params);
   const [isVisibleNotLoggedInMessage, setIsVisibleNotLoggedInMessage] = useState<boolean>(false);
+  const [isDisabledNotLoggedInMessage, setIsDisabledNotLoggedInMessage] = useState<boolean>(false);
   const [challengeImageUrl, setChallengeImageUrl] = useState<string>("");
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
   const [currentScore, setCurrentScore] = useState<number>(0);
@@ -108,34 +109,32 @@ export default function ContentPage({ params }: PageProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen mx-4">
-      {isLoggedIn === false && isVisibleNotLoggedInMessage === true ? (
-        <>
-          <div className="bg-blue-500 text-white p-4 mb-4 rounded shadow-lg">【体験版プレイ中】ログインしていないため、機能が制限されます。</div>
-        </>
-      ) : (
-        <></>
+    <div className="flex flex-col h-full mx-4">
+      {isLoggedIn === false && isVisibleNotLoggedInMessage === true && isDisabledNotLoggedInMessage === false && (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl">
+          <div className="bg-blue-500 text-white p-4 rounded shadow-lg flex justify-between items-center">
+            <span>【体験版プレイ中】ログインしていないため、機能が制限されます。</span>
+            <button onClick={() => setIsDisabledNotLoggedInMessage(true)} className="ml-4 text-white hover:text-gray-200">
+              ✕
+            </button>
+          </div>
+        </div>
       )}
+
       <div className="flex flex-1 mb-4">
-        {/* 上段部 */}
         <div className="flex-1 mr-4">
-          {/* 左 */}
           <ChallengeImageCard imageUrl={challengeImageUrl} />
         </div>
         <div className="flex-1">
-          {/* 右 */}
           <GeneratedImageCard generatedImageUrl={generatedImageUrl} />
         </div>
       </div>
 
       <div className="flex flex-1">
-        {/* 上段部 */}
         <div className="flex-[7] mr-4">
-          {/* 左 */}
           <TextAreaCard submissions={submissions} draftText={draftText} setDraftText={setDraftText} handleSubmit={handleSubmit} />
         </div>
         <div className="flex-[3]">
-          {/* 右 */}
           <ScoreCard currentScore={currentScore} />
         </div>
       </div>
@@ -234,13 +233,26 @@ const TextAreaCard = ({ submissions, draftText, setDraftText, handleSubmit }: { 
     </div>
   );
 };
-
 function ChallengeImageCard({ imageUrl }: { imageUrl: string }) {
-  return <div className="bg-white p-4 h-full w-full rounded-lg shadow-lg bg-cover bg-center" style={{ backgroundImage: `url(${imageUrl})` }}></div>;
+  return (
+    <div className="bg-white p-4 h-full w-full rounded-lg shadow-lg flex flex-col min-h-64">
+      <p className="mb-2">この画像を英語で説明してみよう！</p>
+      <div className="flex-1 relative">
+        <div className="absolute inset-0 bg-center bg-no-repeat bg-contain" style={{ backgroundImage: `url(${imageUrl})` }}></div>
+      </div>
+    </div>
+  );
 }
 
 function GeneratedImageCard({ generatedImageUrl }: { generatedImageUrl: string }) {
-  return <div className="bg-white p-4 h-full w-full rounded-lg shadow-lg bg-cover bg-center" style={{ backgroundImage: `url(${generatedImageUrl})` }}></div>;
+  return (
+    <div className="bg-white p-4 h-full w-full rounded-lg shadow-lg flex flex-col min-h-64">
+      <p className="mb-2">英文をもとに画像が作られます</p>
+      <div className="flex-1 relative">
+        <div className="absolute inset-0 bg-center bg-no-repeat bg-contain" style={{ backgroundImage: `url(${generatedImageUrl})` }}></div>
+      </div>
+    </div>
+  );
 }
 
 function ScoreCard({ currentScore }: { currentScore: number }) {

@@ -33,8 +33,6 @@ export default function Header({ isLoggedIn, onLoginClick, handleLogout }: Heade
           )}
         </div>
       </header>
-      {/* ヘッダーの高さ分のスペースを確保 */}
-      <div className="h-16"></div>
     </>
   );
 }

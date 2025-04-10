@@ -47,7 +47,7 @@ function googleAnalytics() {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja" className={`${geistSans.variable} ${geistMono.variable} antialiased h-full w-full bg-gray-200`}>
-      <body className="h-full w-full">
+      <body className="h-screen w-screen">
         <ClientLayout>{children}</ClientLayout>
         {googleAnalytics()}
       </body>
