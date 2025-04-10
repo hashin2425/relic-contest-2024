@@ -132,7 +132,7 @@ export default function ContentPage({ params }: PageProps) {
 
       <div className="flex flex-1">
         <div className="flex-[7] mr-4">
-          <TextAreaCard submissions={submissions} draftText={draftText} setDraftText={setDraftText} handleSubmit={handleSubmit} />
+          <TextAreaCard submissions={submissions} draftText={draftText} setDraftText={setDraftText} handleSubmit={handleSubmit} isLoggedIn={isLoggedIn} />
         </div>
         <div className="flex-[3]">
           <ScoreCard currentScore={currentScore} />
@@ -142,11 +142,11 @@ export default function ContentPage({ params }: PageProps) {
   );
 }
 
-const TextAreaCard = ({ submissions, draftText, setDraftText, handleSubmit }: { submissions: SubmissionDisplayItems[]; draftText: string; setDraftText: React.Dispatch<React.SetStateAction<string>>; handleSubmit: () => void }) => {
+const TextAreaCard = ({ submissions, draftText, setDraftText, handleSubmit, isLoggedIn }: { submissions: SubmissionDisplayItems[]; draftText: string; setDraftText: React.Dispatch<React.SetStateAction<string>>; handleSubmit: () => void; isLoggedIn: boolean }) => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [lastSubmissionTime, setLastSubmissionTime] = useState<number>(0);
   const [coolDownRemaining, setCoolDownRemaining] = useState<number>(0);
-  const COOL_DOWN_DURATION = 120; // seconds
+  const COOL_DOWN_DURATION = isLoggedIn ? 60 : 30; // seconds
 
   useEffect(() => {
     const timer = setInterval(() => {
