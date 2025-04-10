@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { type Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import ClientLayout from "./layout-client";
 import "./globals.css";
 
@@ -27,11 +28,28 @@ export const metadata: Metadata = {
   robots: "index, follow",
 };
 
+function googleAnalytics() {
+  return (
+    <>
+      <Script src="https://www.googletagmanager.com/gtag/js?id=G-HL8Q7ZL2TV" strategy="afterInteractive" />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-HL8Q7ZL2TV');
+        `}
+      </Script>
+    </>
+  );
+}
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja" className={`${geistSans.variable} ${geistMono.variable} antialiased h-full w-full bg-gray-200`}>
       <body className="h-full w-full">
         <ClientLayout>{children}</ClientLayout>
+        {googleAnalytics()}
       </body>
     </html>
   );
