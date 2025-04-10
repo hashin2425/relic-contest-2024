@@ -1,0 +1,27 @@
+# Run the following command to generate the requirements.txt file:
+#
+# pip-compile requirements.in
+# pip-compile --upgrade requirements.in
+
+# Application
+bcrypt
+fastapi
+pydantic
+PyJWT
+python-multipart
+requests
+uvicorn
+
+# Database
+# pymongo
+motor
+
+# Generative AI
+groq
+openai
+
+# for Development
+python-dotenv
+
+# Others
+tzdata
