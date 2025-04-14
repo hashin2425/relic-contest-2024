@@ -13,7 +13,7 @@ anyio==4.9.0
     #   openai
     #   starlette
 bcrypt==4.3.0
-    # via -r requirements.in
+    # via -r backend/requirements.in
 certifi==2025.1.31
     # via
     #   httpcore
@@ -23,10 +23,6 @@ charset-normalizer==3.4.1
     # via requests
 click==8.1.8
     # via uvicorn
-colorama==0.4.6
-    # via
-    #   click
-    #   tqdm
 distro==1.9.0
     # via
     #   groq
@@ -34,9 +30,9 @@ distro==1.9.0
 dnspython==2.7.0
     # via pymongo
 fastapi==0.115.12
-    # via -r requirements.in
+    # via -r backend/requirements.in
 groq==0.22.0
-    # via -r requirements.in
+    # via -r backend/requirements.in
 h11==0.14.0
     # via
     #   httpcore
@@ -55,28 +51,27 @@ idna==3.10
 jiter==0.9.0
     # via openai
 motor==3.7.0
-    # via -r requirements.in
-openai==1.72.0
-    # via -r requirements.in
+    # via -r backend/requirements.in
+openai==1.73.0
+    # via -r backend/requirements.in
 pydantic==2.11.3
-
     # via
-    #   -r requirements.in
+    #   -r backend/requirements.in
     #   fastapi
     #   groq
     #   openai
 pydantic-core==2.33.1
     # via pydantic
 pyjwt==2.10.1
-    # via -r requirements.in
+    # via -r backend/requirements.in
 pymongo==4.12.0
     # via motor
 python-dotenv==1.1.0
-    # via -r requirements.in
+    # via -r backend/requirements.in
 python-multipart==0.0.20
-    # via -r requirements.in
+    # via -r backend/requirements.in
 requests==2.32.3
-    # via -r requirements.in
+    # via -r backend/requirements.in
 sniffio==1.3.1
     # via
     #   anyio
@@ -98,8 +93,8 @@ typing-extensions==4.13.1
 typing-inspection==0.4.0
     # via pydantic
 tzdata==2025.2
-    # via -r requirements.in
+    # via -r backend/requirements.in
 urllib3==2.3.0
     # via requests
 uvicorn==0.34.0
-    # via -r requirements.in
+    # via -r backend/requirements.in
