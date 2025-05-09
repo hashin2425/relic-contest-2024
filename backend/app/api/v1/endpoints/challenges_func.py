@@ -28,6 +28,48 @@ SUBMIT_INTERVAL_FOR_TRIAL = 30  # 提出の間隔（秒）
 SUBMIT_INTERVAL_FOR_LOGGED_IN = 60  # 提出の間隔（秒）
 SCORE_MAGNIFICATION_TRIAL = 300  # 体験版のスコア倍率
 
+@api_router.get("/get-challenge-progress")
+@require_auth()
+async def get_challenge_progress(current_user: dict = Depends(get_current_user)):
+    """ユーザーのチャレンジ進捗を取得するエンドポイント"""
+    user_id = current_user["sub"]
+    if user_id not in user_challenges:
+        raise HTTPException(status_code=404, detail="No challenge progress found for this user.")
+
+    challenge_progress = user_challenges[user_id]
+    return {
+        "now_challenge_id": challenge_progress.now_challenge_id,
+        "submissions": challenge_progress.submissions,
+        "last_submitted_text": challenge_progress.last_submitted_text,
+        "last_submission_score": challenge_progress.last_submission_score,
+    }
+
+
+@api_router.get("/reset-challenge")
+@require_auth()
+async def reset_challenge(current_user: dict = Depends(get_current_user)):
+    """ユーザーのチャレンジ進捗をリセットするエンドポイント"""
+    user_id = current_user["sub"]
+    if user_id in user_challenges:
+        del user_challenges[user_id]
+        logging("Challenge progress reset for user: ", user_id)
+        return {"message": "Challenge progress reset successfully."}
+    else:
+        raise HTTPException(status_code=404, detail="No challenge progress found for this user.")
+
+
+@api_router.get("/complete-challenge")
+@require_auth()
+async def complete_challenge(current_user: dict = Depends(get_current_user)):
+    """ユーザーのチャレンジを完了するエンドポイント"""
+    user_id = current_user["sub"]
+    if user_id in user_challenges:
+        del user_challenges[user_id]
+        logging("Challenge completed for user: ", user_id)
+        return {"message": "Challenge completed successfully."}
+    else:
+        raise HTTPException(status_code=404, detail="No challenge progress found for this user.")
+
 
 @api_router.post("/start-challenge")
 @require_auth()
