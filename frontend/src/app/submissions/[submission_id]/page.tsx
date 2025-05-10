@@ -44,6 +44,13 @@ export default function ContentPage({ params }: PageProps) {
       .catch((error) => console.error("Error:", error));
   }, [submission_id]);
 
+  function imgUrlCreator(imgUrl: string) {
+    if (!imgUrl.startsWith("/api/img/")) {
+      return urlCreator("/api/img/" + imgUrl);
+    }
+    return urlCreator(imgUrl);
+  }
+
   return (
     <div className="mx-4">
       <div>提出ID：{submission_id}</div>
@@ -58,7 +65,7 @@ export default function ContentPage({ params }: PageProps) {
               <div className="bg-white p-4 h-full w-full rounded-lg shadow-lg flex flex-col min-h-96">
                 <p>{index + 1}枚目</p>
                 <div className="flex-1 relative">
-                  <div className="absolute inset-0 bg-center bg-no-repeat bg-contain" style={{ backgroundImage: `url(${urlCreator(imgUrl)})` }}></div>
+                  <div className="absolute inset-0 bg-center bg-no-repeat bg-contain" style={{ backgroundImage: `url(${imgUrlCreator(imgUrl)})` }}></div>
                 </div>
               </div>
             </div>
