@@ -345,7 +345,7 @@ function ScoreCard({ currentScore }: { currentScore: number }) {
         <span className="mx-1 px-2 rounded text-white bg-green-500 font-bold">90</span>
         を超えたときにAIが画像を作ってくれます！
       </p>
-      <CircularProgressBar maxValue={100} currentValue={currentScore} size={280} />
+      <CircularProgressBar maxValue={100} currentValue={Math.floor(currentScore)} size={280} />
     </div>
   );
 }
