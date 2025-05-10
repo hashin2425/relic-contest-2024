@@ -24,7 +24,7 @@ from app.utils.challenge_utils import convert_challenge_to_json_item, submission
 load_dotenv()
 api_router = APIRouter()
 user_challenges = defaultdict(None)
-SUBMIT_INTERVAL_FOR_TRIAL = 30  # 提出の間隔（秒）
+SUBMIT_INTERVAL_FOR_TRIAL = 5  # 提出の間隔（秒）
 SUBMIT_INTERVAL_FOR_LOGGED_IN = 60  # 提出の間隔（秒）
 SCORE_MAGNIFICATION_TRIAL = 300  # 体験版のスコア倍率
 
