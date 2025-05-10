@@ -48,16 +48,15 @@ function HalfPanel({ h1, h2, children }: { h1: string; h2: string; children?: Re
 
 // 問題を並べるところ
 function ChallengeCardList() {
-  const [cards, setCards] = useState<{ id: number; title: string; description: string; imgUrl: string }[]>([]);
+  const [cards, setCards] = useState<{ id: string; title: string; description: string; imgUrl: string }[]>([]);
+  const [inProgressChallengeIds, setInProgressChallengeIds] = useState<string>("");
+  const { isLoggedIn } = useAuth();
 
   useEffect(() => {
     // 問題リストのデータを取得
     fetch(urlCreator("/api/challenges-list/get-all"))
       .then((response) => response.json())
       .then((data) => {
-        //console.log(data);
-
-        //jsonを展開
         const transformedData = data.problems.map((problem: { id: string; title: string; description: string; imgUrl: string }) => ({
           id: problem.id, // IDはアルファベットを含む文字列
           title: problem.title,
@@ -69,22 +68,63 @@ function ChallengeCardList() {
       .catch((error) => {
         console.error("Failed to fetch challenge data:", error);
       });
-  }, []);
+
+    // ログイン済みであれば、進行中のチャレンジが存在しないかをチェックする
+    if (isLoggedIn) {
+      fetch(
+        urlCreator("/api/challenges-func/get-challenge-progress"),
+
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.in_progress.length > 0) {
+            setInProgressChallengeIds(data.in_progress[0].now_challenge_id);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch in-progress challenge data:", error);
+        });
+    }
+  }, [isLoggedIn]);
 
   return (
     <div className="p-8">
       <div className="space-y-4">
         {cards.map((card) => (
           //カードを配置
-          <ChallengeCard key={card.id} id={card.id} title={card.title} description={card.description} imgUrl={card.imgUrl} />
+          <ChallengeCard key={card.id} id={card.id} title={card.title} description={card.description} imgUrl={card.imgUrl} inProgressChallengeIds={inProgressChallengeIds} />
         ))}
       </div>
     </div>
   );
 }
 
-function ChallengeCard({ id, title, description, imgUrl }: { id: number; title: string; description?: string; imgUrl: string }) {
+function ChallengeCard({ id, title, description, imgUrl, inProgressChallengeIds }: { id: string; title: string; description?: string; imgUrl: string; inProgressChallengeIds: string }) {
+  const [isGiveUpShown, setIsGiveUpShown] = useState(false);
   const { isLoggedIn } = useAuth();
+
+  const handleGiveUpClick = () => {
+    setIsGiveUpShown(!isGiveUpShown);
+  };
+  const handleGiveUp = () => {
+    fetch(urlCreator("/api/challenges-func/give-up-challenge"), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }).then(() => {
+      setIsGiveUpShown(false);
+      window.location.reload();
+    });
+  };
 
   return (
     <div className="group relative block h-48 overflow-hidden rounded-md shadow-lg shadow-gray-500/50">
@@ -101,9 +141,34 @@ function ChallengeCard({ id, title, description, imgUrl }: { id: number; title: 
         <p className="text-sm text-gray-700">ID: {id}</p>
         <p className="mt-2 text-gray-800 line-clamp-2">{description}</p>
         <div className="flex-grow flex items-end justify-end p-2">
-          <Link href={`/challenge/${id}`} className="bg-white text-orange-500 font-bold p-2 rounded transition-transform hover:scale-105 hover:shadow-2xl">
-            プレイする
-          </Link>
+          {inProgressChallengeIds === "" || inProgressChallengeIds === id ? (
+            <div>
+              {!isGiveUpShown ? (
+                <div>
+                  <Link href={`/challenge/${id}`} className="mr-4 bg-orange-500 text-white font-bold p-2 rounded transition-transform hover:scale-105 hover:shadow-2xl shadow">
+                    プレイする
+                  </Link>
+                  {isLoggedIn && inProgressChallengeIds !== "" ? (
+                    <button onClick={handleGiveUpClick} className="bg-white text-gray-500 font-bold p-2 rounded transition-transform hover:scale-105 hover:shadow-2xl shadow">
+                      ギブアップ
+                    </button>
+                  ) : null}
+                </div>
+              ) : (
+                <div>
+                  <p className="mb-2 block text-center">本当にギブアップしますか？</p>
+                  <button onClick={handleGiveUp} className="mr-4 bg-white text-gray-500 font-bold p-2 rounded transition-transform hover:scale-105 hover:shadow-2xl shadow">
+                    ギブアップする
+                  </button>
+                  <button onClick={handleGiveUpClick} className="bg-orange-500 text-white font-bold p-2 rounded transition-transform hover:scale-105 hover:shadow-2xl shadow">
+                    キャンセル
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <span className="bg-white text-gray-500 font-bold p-2 rounded ">（進行中のチャレンジがあります）</span>
+          )}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-""" MongoDBを操作するクラス """
+"""MongoDBを操作するクラス"""
 
 from datetime import datetime
 from typing import List
@@ -88,6 +88,67 @@ class MongoDB:
             raise ServiceUnavailableError("Could not find the challenge")
 
         return Challenge(**challenge)
+
+    async def insert_submission(
+        self,
+        _submission_id: str,
+        _user_id: str,
+        _challenge_id: str,
+        _created_at: datetime,
+        _images: List[str],
+        _submissions: List[dict],
+    ):
+        """提出物をMongoDBに保存"""
+        if self.db is None or self.db.submissions is None:
+            raise ServiceUnavailableError("Could not connect to the service")
+
+        try:
+            await self.db.submissions.insert_one(
+                {
+                    "_id": _submission_id,
+                    "submission_id": _submission_id,
+                    "user_id": _user_id,
+                    "challenge_id": _challenge_id,
+                    "created_at": _created_at,
+                    "images": _images,
+                    "submissions": _submissions,  # {timestamp, content, score}
+                }
+            )
+        except Exception as e:
+            logging(f"Error inserting submission: {e}")
+            raise ServiceUnavailableError("Could not insert submission") from e
+
+    async def get_submissions_by_submission_id(self, submission_id: str) -> dict:
+        """提出物IDによる提出物取得"""
+        if self.db is None or self.db.submissions is None:
+            raise ServiceUnavailableError("Could not connect to the service")
+
+        cursor = self.db.submissions.find({"submission_id": submission_id})
+        submissions = await cursor.to_list(length=None)
+        submissions = [remove_internal_keys(submission) for submission in submissions]
+
+        if not submissions or len(submissions) == 0:
+            raise ServiceUnavailableError("Could not find the submission")
+
+        return submissions[0]
+
+    async def get_all_submissions_by_user(self, user_id: str) -> List[dict]:
+        """ユーザーIDによる全提出物取得"""
+        if self.db is None or self.db.submissions is None:
+            raise ServiceUnavailableError("Could not connect to the service")
+
+        cursor = self.db.submissions.find({"user_id": user_id})
+        submissions = await cursor.to_list(length=None)
+        submissions = [remove_internal_keys(submission) for submission in submissions]
+
+        return submissions
+
+
+def remove_internal_keys(data: dict) -> dict:
+    """内部キーを削除する"""
+    if "_id" in data:  # MongoDBのIDキーを削除
+        del data["_id"]
+    return data
 
 
 # グローバルなMongoDBインスタンス

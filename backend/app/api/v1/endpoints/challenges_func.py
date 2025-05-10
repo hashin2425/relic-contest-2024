@@ -4,6 +4,7 @@ import os
 import base64
 import json
 import hashlib
+import uuid
 from collections import defaultdict
 
 from dotenv import load_dotenv
@@ -24,9 +25,102 @@ from app.utils.challenge_utils import convert_challenge_to_json_item, submission
 load_dotenv()
 api_router = APIRouter()
 user_challenges = defaultdict(None)
-SUBMIT_INTERVAL_FOR_TRIAL = 30  # 提出の間隔（秒）
+SUBMIT_INTERVAL_FOR_TRIAL = 5  # 提出の間隔（秒）
 SUBMIT_INTERVAL_FOR_LOGGED_IN = 60  # 提出の間隔（秒）
 SCORE_MAGNIFICATION_TRIAL = 300  # 体験版のスコア倍率
+
+
+@api_router.get("/get-challenge-progress")
+@require_auth()
+async def get_challenge_progress(current_user: dict = Depends(get_current_user)):
+    """ユーザーのチャレンジ進捗を取得するエンドポイント"""
+    user_id = current_user["sub"]
+    if user_id not in user_challenges:
+        return {
+            "in_progress": [
+                {
+                    "now_challenge_id": "",
+                    "submissions": [],
+                    "image_paths": [],
+                }
+            ],
+        }
+
+    challenge_progress = user_challenges[user_id]
+    return {
+        "in_progress": [
+            {
+                "now_challenge_id": challenge_progress.now_challenge_id,
+                "submissions": challenge_progress.submissions,
+                "image_paths": challenge_progress.generated_image[-1:] if challenge_progress.generated_image else [],
+            }
+        ]
+    }
+
+
+@api_router.get("/give-up-challenge")
+@require_auth()
+async def give_up_challenge(current_user: dict = Depends(get_current_user)):
+    """ユーザーのチャレンジ進捗をリセットするエンドポイント"""
+    user_id = current_user["sub"]
+    logging("Challenge progress reset for user: ", user_id)
+    del user_challenges[user_id]
+
+    return {"message": "Challenge progress reset successfully."}
+
+
+@api_router.get("/complete-challenge")
+@require_auth()
+async def complete_challenge(current_user: dict = Depends(get_current_user)):
+    """ユーザーのチャレンジを完了するエンドポイント"""
+    user_id = current_user["sub"]
+    if user_id in user_challenges:
+        submission_id = str(uuid.uuid4())
+        await db.insert_submission(
+            _submission_id=submission_id,
+            _user_id=user_id,
+            _challenge_id=user_challenges[user_id].now_challenge_id,
+            _created_at=get_jst_now(),
+            _images=user_challenges[user_id].generated_image,
+            _submissions=user_challenges[user_id].submissions,
+        )
+
+        del user_challenges[user_id]
+
+        logging("Challenge completed for user: ", user_id)
+        return {"submission_id": submission_id}
+    else:
+        raise HTTPException(status_code=404, detail="No challenge progress found for this user.")
+
+
+@api_router.get("/get-all-submission")
+@require_auth()
+async def get_all_submission(current_user: dict = Depends(get_current_user)):
+    """ユーザーの全提出物を取得するエンドポイント"""
+    user_id = current_user["sub"]
+    submissions = await db.get_all_submissions_by_user(user_id)
+
+    if not submissions:
+        return {"submissions": []}
+    return {"submissions": submissions}
+
+
+@api_router.get("/get-submission/{submission_id}")
+@require_auth()
+async def get_submission(submission_id: str, current_user: dict = Depends(get_current_user)):
+    """ユーザーの提出物を取得するエンドポイント"""
+    user_id = current_user["sub"]
+    submission = await db.get_submissions_by_submission_id(submission_id)
+
+    if not submission or submission["user_id"] != user_id:
+        raise HTTPException(status_code=404, detail="Submission not found.")
+    return {
+        "submission_id": submission["submission_id"],
+        "challenge_id": submission["challenge_id"],
+        "created_at": submission["created_at"],
+        "images": submission["images"],
+        "submissions": submission["submissions"],
+    }
 
 
 @api_router.post("/start-challenge")
@@ -46,13 +140,42 @@ async def start_challenge(request: ChallengeRequest, current_user: dict = Depend
     if user_id not in user_challenges:
         user_challenges[user_id] = UserChallenges(now_challenge_id=challenge_id, now_challenge=challenge)
 
+    # debug用
+    # user_challenges[user_id].submissions = [
+    #     {
+    #         "timestamp": get_jst_now().strftime("%Y-%m-%dT %H:%M:%S"),
+    #         "content": "This is a sample submission text.",
+    #         "score": 50,
+    #     },
+    #     {
+    #         "timestamp": get_jst_now().strftime("%Y-%m-%dT %H:%M:%S"),
+    #         "content": "This is a sample submission text.",
+    #         "score": 95,
+    #     },
+    # ]
+    # user_challenges[user_id].generated_image = [
+    #     "/api/img/ch_f011aa5b7e209c2566cfcc49143b1ab713016351f0727938cbf93f7e155f5126",
+    #     "/api/img/ch_f011aa5b7e209c2566cfcc49143b1ab713016351f0727938cbf93f7e155f5126",
+    # ]
+    # user_challenges[user_id].last_submitted_text = "This is a sample submission text."
+    # user_challenges[user_id].last_submission_score = 95
+    # debug用
+
     logging("Challenge started: ", challenge_id, current_user)
-    return {
-        "message": "Start the challenge!",
-        "submissions": user_challenges[user_id].submissions,
-        "last_submitted_text": user_challenges[user_id].last_submitted_text,
-        "last_submission_score": user_challenges[user_id].last_submission_score,
-    }
+    response = {}
+
+    response["message"] = "Start the challenge!"
+    if user_challenges[user_id].submissions:
+        response["submissions"] = user_challenges[user_id].submissions
+    if user_challenges[user_id].generated_image:
+        response["generated_img_url"] = user_challenges[user_id].generated_image[0]
+        if not response["generated_img_url"].startswith("/api/img/"):
+            response["generated_img_url"] = "/api/img/" + user_challenges[user_id].generated_image[0]
+    if user_challenges[user_id].last_submitted_text:
+        response["last_submitted_text"] = user_challenges[user_id].last_submitted_text
+    if user_challenges[user_id].last_submission_score:
+        response["last_submission_score"] = user_challenges[user_id].last_submission_score
+    return response
 
 
 @api_router.post("/submit")
