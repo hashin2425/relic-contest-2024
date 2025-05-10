@@ -169,6 +169,8 @@ async def start_challenge(request: ChallengeRequest, current_user: dict = Depend
         response["submissions"] = user_challenges[user_id].submissions
     if user_challenges[user_id].generated_image:
         response["generated_img_url"] = user_challenges[user_id].generated_image[0]
+        if not response["generated_img_url"].startswith("/api/img/"):
+            response["generated_img_url"] = "/api/img/" + user_challenges[user_id].generated_image[0]
     if user_challenges[user_id].last_submitted_text:
         response["last_submitted_text"] = user_challenges[user_id].last_submitted_text
     if user_challenges[user_id].last_submission_score:
