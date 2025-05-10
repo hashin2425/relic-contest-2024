@@ -57,9 +57,6 @@ function ChallengeCardList() {
     fetch(urlCreator("/api/challenges-list/get-all"))
       .then((response) => response.json())
       .then((data) => {
-        //console.log(data);
-
-        //jsonを展開
         const transformedData = data.problems.map((problem: { id: string; title: string; description: string; imgUrl: string }) => ({
           id: problem.id, // IDはアルファベットを含む文字列
           title: problem.title,
@@ -89,7 +86,6 @@ function ChallengeCardList() {
         .then((data) => {
           if (data.in_progress.length > 0) {
             setInProgressChallengeIds(data.in_progress[0].now_challenge_id);
-            console.log(data);
           }
         })
         .catch((error) => {

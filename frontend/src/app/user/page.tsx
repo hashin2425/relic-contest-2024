@@ -51,7 +51,6 @@ export default function UserPage() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Submission Data:", data.submissions);
         if (data.submissions) { setSubmissionDataList(data.submissions); }
       })
       .catch((error) => console.error("Error:", error));

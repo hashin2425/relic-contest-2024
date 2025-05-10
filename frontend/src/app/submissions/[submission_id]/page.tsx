@@ -39,10 +39,6 @@ export default function ContentPage({ params }: PageProps) {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Submission Data:", data);
-        data?.images.map((imgUrl, index) => {
-          console.log("Image URL:", urlCreator(imgUrl));
-        });
         setSubmissionData(data);
       })
       .catch((error) => console.error("Error:", error));

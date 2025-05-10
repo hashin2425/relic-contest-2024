@@ -60,7 +60,6 @@ export default function ContentPage({ params }: PageProps) {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Start Challenge:", data);
         if (data.submissions) {
           setSubmissions(data.submissions);
         }
@@ -92,7 +91,6 @@ export default function ContentPage({ params }: PageProps) {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Submit Response:", data);
         if (data.submissions) {
           setSubmissions(data.submissions);
         }
@@ -281,7 +279,7 @@ const TextAreaCard = ({ submissions, draftText, setDraftText, handleSubmit, isLo
               {coolDownRemaining > 0 ? `${coolDownRemaining}秒待機中...` : "採点してもらう"}
             </button>
             {isLoggedIn ? (
-              <button type="button" className={`p-2 ml-2 min-w-36 h-16 text-white rounded-xl transition-colors ${!canComplete ? "bg-gray-400 cursor-not-allowed" : "bg-orange-500 hover:bg-orange-600"}`} disabled={!canComplete} onClick={canComplete ? () => setIsVisibleConfirmComplete(true) : () => console.log(1)}>
+              <button type="button" className={`p-2 ml-2 min-w-36 h-16 text-white rounded-xl transition-colors ${!canComplete ? "bg-gray-400 cursor-not-allowed" : "bg-orange-500 hover:bg-orange-600"}`} disabled={!canComplete} onClick={canComplete ? () => setIsVisibleConfirmComplete(true) : undefined}>
                 {!canComplete ? (
                   <span>
                     90点以上で
