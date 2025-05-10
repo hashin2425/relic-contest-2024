@@ -15,22 +15,26 @@ api_router = APIRouter()
 security = HTTPBearer()
 dotenv.load_dotenv()
 
-MOCK_USER = {
-    "id": os.getenv("MOCK_USER_ID", "test_user"),
-    "hashed_password": os.getenv("MOCK_USER_PW", "pwd1234"),
-}
+mock_users = {}
+MOCK_USER_IDS = os.getenv("MOCK_USER_ID", "test_user").split(",")
+MOCK_USER_PWS = os.getenv("MOCK_USER_PW", "pwd1234").split(",")
+for i, user_id in enumerate(MOCK_USER_IDS):
+    mock_users[user_id] = {
+        "id": user_id,
+        "hashed_password": MOCK_USER_PWS[i],
+    }
 
 
 @api_router.post("/login", response_model=Token)
 async def login(user_data: UserLogin) -> Any:
     # logging(user_data, MOCK_USER) # 確認用のコードだが、認証情報が平文で出力されるので注意
-    if user_data.id != MOCK_USER["id"]:
+    if user_data.id not in mock_users:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect id or password",
         )
 
-    if not verify_password(user_data.password, MOCK_USER["hashed_password"]):
+    if not verify_password(user_data.password, mock_users[user_data.id]["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect id or password",
