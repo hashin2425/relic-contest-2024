@@ -54,13 +54,13 @@ motor==3.7.0
     # via -r backend/requirements.in
 openai==1.72.0
     # via -r backend/requirements.in
-pydantic==2.11.3
+pydantic==2.11.4
     # via
     #   -r backend/requirements.in
     #   fastapi
     #   groq
     #   openai
-pydantic-core==2.33.1
+pydantic-core==2.33.2
     # via pydantic
 pyjwt==2.10.1
     # via -r backend/requirements.in
