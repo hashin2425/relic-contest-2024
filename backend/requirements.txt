@@ -52,7 +52,7 @@ jiter==0.9.0
     # via openai
 motor==3.7.0
     # via -r backend/requirements.in
-openai==1.78.0
+openai==1.79.0
     # via -r backend/requirements.in
 pydantic==2.11.4
     # via
