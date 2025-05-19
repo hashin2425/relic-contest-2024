@@ -50,7 +50,7 @@ idna==3.10
     #   requests
 jiter==0.9.0
     # via openai
-motor==3.7.0
+motor==3.7.1
     # via -r backend/requirements.in
 openai==1.78.0
     # via -r backend/requirements.in
