@@ -31,7 +31,7 @@ dnspython==2.7.0
     # via pymongo
 fastapi==0.115.12
     # via -r backend/requirements.in
-groq==0.24.0
+groq==0.28.0
     # via -r backend/requirements.in
 h11==0.14.0
     # via
