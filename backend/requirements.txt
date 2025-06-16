@@ -54,7 +54,7 @@ motor==3.7.0
     # via -r backend/requirements.in
 openai==1.78.0
     # via -r backend/requirements.in
-pydantic==2.11.4
+pydantic==2.11.7
     # via
     #   -r backend/requirements.in
     #   fastapi
